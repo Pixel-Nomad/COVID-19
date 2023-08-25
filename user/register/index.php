@@ -1,109 +1,111 @@
 <?php
-    require('../../config.php');
-    session_start();
-    $alert = "";
-    if (!isset($_SESSION['isloggedin'])){
-        session_unset();
-        session_destroy();
-        $connection = mysqli_connect($config['DB_URL'],$config['DB_USERNAME'],$config['DB_PASSWORD'],$config['DB_DATABASE']);
-        if ($connection) {
-            if (isset($_POST['register'])){
-                $fname      = htmlentities($_POST['fname']); 
-                $lname      = htmlentities($_POST['lname']);
-                $email      = htmlentities($_POST['email']);
-                $contact    = htmlentities(strval($_POST['contact']));
-                $password   = $_POST['password'];
-                $password2  = $_POST['password2'];
-                $address    = htmlentities($_POST['address']);
-                $city       = htmlentities($_POST['city']);
-                $state      = htmlentities($_POST['state']);
-                $postal     = htmlentities($_POST['postal']);
-                $country    = htmlentities($_POST['country']);
-                if (strlen($password) >= 8){
-                    $password   = htmlentities($_POST['password']);
-                    $search      = "SELECT * FROM users WHERE email='".$email."'";
-                    $result      = mysqli_query($connection, $search);
-                    $encrypt     = sha1($password);
-                    $unique      = true;
-                    if ($result) {
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            if ($row['email'] == $email){
-                                $unique = false;
-                            }
+require('../../config.php');
+session_start();
+$alert = "";
+if (!isset($_SESSION['isloggedin'])) {
+    session_unset();
+    session_destroy();
+    $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
+    if ($connection) {
+        if (isset($_POST['register'])) {
+            $fname      = htmlentities($_POST['fname']);
+            $lname      = htmlentities($_POST['lname']);
+            $email      = htmlentities($_POST['email']);
+            $contact    = htmlentities(strval($_POST['contact']));
+            $password   = $_POST['password'];
+            $password2  = $_POST['password2'];
+            $address    = htmlentities($_POST['address']);
+            $city       = htmlentities($_POST['city']);
+            $state      = htmlentities($_POST['state']);
+            $postal     = htmlentities($_POST['postal']);
+            $country    = htmlentities($_POST['country']);
+            if (strlen($password) >= 8) {
+                $password   = htmlentities($_POST['password']);
+                $search      = "SELECT * FROM users WHERE email='" . $email . "'";
+                $result      = mysqli_query($connection, $search);
+                $encrypt     = sha1($password);
+                $unique      = true;
+                if ($result) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        if ($row['email'] == $email) {
+                            $unique = false;
                         }
                     }
-                    if ($password == $password2 && $unique) {
-                        $sql = "INSERT INTO `users` (`fname`,`lname`,`email`,`contact`,`password`,`address`,`city`,`state`,`postal`,`country`)
+                }
+                if ($password == $password2 && $unique) {
+                    $sql = "INSERT INTO `users` (`fname`,`lname`,`email`,`contact`,`password`,`address`,`city`,`state`,`postal`,`country`)
                         VALUES ('$fname','$lname','$email','$contact','$encrypt','$address','$city','$state','$postal','$country')";
-                        echo $sql;
-                        $query = mysqli_query($connection, $sql);
-                        if ($query){
-                            header("location: " . $config['URL'] . "/user/login"); 
-                            exit();
-                        } else {
-                            $alert = '<div class="container mt-5">
+                    echo $sql;
+                    $query = mysqli_query($connection, $sql);
+                    if ($query) {
+                        header("location: " . $config['URL'] . "/user/login");
+                        exit();
+                    } else {
+                        $alert = '<div class="container mt-5">
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 This is a success alert that will automatically hide after 5 seconds.
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
-                        }
-                    } else {
-                        if (!$unique) {
-                            $alert = '<div class="container mt-5">
+                    }
+                } else {
+                    if (!$unique) {
+                        $alert = '<div class="container mt-5">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 Email already registered
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
-                        } else {
-                            $alert = '<div class="container mt-5">
+                    } else {
+                        $alert = '<div class="container mt-5">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 Password Not Matched
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
-                        }
                     }
-                } else {
-                    $alert = '<div class="container mt-5">
+                }
+            } else {
+                $alert = '<div class="container mt-5">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 Password must be 8 characters long
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
-                }
             }
-        }
-    } else {
-        if (!$_SESSION['Verified']){
-            if(isset($_SERVER['HTTP_REFERER'])) {
-                header('location: '. $_SERVER['HTTP_REFERER']);
-                exit();
-            } else {
-                header('location: '. $config['URL']);
-                exit();
-            }
-        } else {
-            header('location: '. $config['URL'].'/user/verify');
-            exit();
         }
     }
+} else {
+    if (!$_SESSION['Verified']) {
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            header('location: ' . $_SERVER['HTTP_REFERER']);
+            exit();
+        } else {
+            header('location: ' . $config['URL']);
+            exit();
+        }
+    } else {
+        header('location: ' . $config['URL'] . '/user/verify');
+        exit();
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="icon" href='<?php echo $config['URL']?>/assets/image/fav/fav.ico' type="image/x-icon">
-    <link rel="shortcut icon" href='<?php echo $config['URL']?>/assets/image/fav/fav.ico' type="image/x-icon">
+    <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
+    <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="<?php echo $config['URL']?>/assets/css/global.css">
+    <link rel="stylesheet" href="<?php echo $config['URL'] ?>/assets/css/global.css">
 </head>
-<body style="background-color: <?php echo $config['THEME_COLOR']?>;">
-    <img src="<?php echo $config['URL']?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL']?>')">
+
+<body style="background-color: <?php echo $config['THEME_COLOR'] ?>;">
+    <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
     <div class="container">
         <div class="row row-cols-1 row-cols-md-1 m-4">
             <div class="col">
@@ -416,20 +418,20 @@
                                         <label for="floatingInput">Postal Code</label>
                                     </div>
                                     <div class="d-grid gap-2">
-                                        <input type="submit" class="btn btn-primary mt-2"  value="Register" name="register">
+                                        <input type="submit" class="btn btn-primary mt-2" value="Register" name="register">
                                     </div>
                                 </div>
                                 <?php
-                                    echo $alert
+                                echo $alert
                                 ?>
-                                <a href="<?php echo $config['URL']?>/user/login">Already have an account? Login Now!</a>
+                                <a href="<?php echo $config['URL'] ?>/user/login">Already have an account? Login Now!</a>
                             </div>
-                            
+
                         </form>
                         <form method="post">
                             <div class="row row-cols-1 row-cols-md-2 d-sm-flex d-md-none d-lg-none d-xl-none d-xxl-none">
                                 <?php
-                                    echo $alert
+                                echo $alert
                                 ?>
                                 <div class="col">
                                     <div class="form-floating mb-3">
@@ -733,21 +735,22 @@
                                         <label for="floatingCountry">Country</label>
                                     </div>
                                     <div class="d-grid gap-2">
-                                        <input type="submit" class="btn btn-primary mt-2"  value="Register" name="register">
+                                        <input type="submit" class="btn btn-primary mt-2" value="Register" name="register">
                                     </div>
                                 </div>
-                                
-                                <a href="<?php echo $config['URL']?>/user/login">Already have an account? Login Now!</a>
+
+                                <a href="<?php echo $config['URL'] ?>/user/login">Already have an account? Login Now!</a>
                             </div>
-                            
+
                         </form>
-                        
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="<?php echo $config['URL']?>/assets/js/global.js"></script>
+    <script src="<?php echo $config['URL'] ?>/assets/js/global.js"></script>
 </body>
+
 </html>

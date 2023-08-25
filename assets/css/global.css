@@ -1,3 +1,11 @@
 .addHover:hover {
     box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.306) !important;
 }
+
+.remove-submit-button {
+    background-color: initial; /* Reset the background color */
+    border: none; /* Remove the border */
+    color: initial; /* Reset the text color */
+    text-decoration: none; /* Reset text decoration */
+    /* Add more styles as needed */
+}
