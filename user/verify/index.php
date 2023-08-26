@@ -22,34 +22,34 @@ if (isset($_SESSION['isloggedin'])) {
                 while ($row = mysqli_fetch_assoc($result)){
                     $code = $row['code'];
                     $mail = new PHPMailer(true);
-                        try {
-                            $mail->isSMTP();
-                            $mail->Host       = 'smtp.gmail.com';
-                            $mail->SMTPAuth   = true;
-                            $mail->Username   = 'mr.tgamer247797704@gmail.com'; 
-                            $mail->Password   = 'seasiuyldxhdnahs';
-                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                            $mail->Port       = 587;
-                            // Recipients
-                            $mail->setFrom('mr.tgamer247797704@gmail.com', 'NoReply - Verification Code');
-                            $mail->addAddress($_SESSION['user-email'], $_SESSION['user-email']); // Email and name of recipient
-                            
-                            // Content
-                            $mail->isHTML(true); // Set email format to HTML
-                            $mail->Subject = 'Verification Code Request';
-                            $mail->Body    = 'This is Your Code:'.$code;
+                    try {
+                        $mail->isSMTP();
+                        $mail->Host       = 'smtp.gmail.com';
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = 'mr.tgamer247797704@gmail.com'; 
+                        $mail->Password   = 'seasiuyldxhdnahs';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = 587;
+                        // Recipients
+                        $mail->setFrom('mr.tgamer247797704@gmail.com', 'NoReply - Verification Code');
+                        $mail->addAddress($_SESSION['user-email'], $_SESSION['user-email']); // Email and name of recipient
+                        
+                        // Content
+                        $mail->isHTML(true); // Set email format to HTML
+                        $mail->Subject = 'Verification Code Request';
+                        $mail->Body    = 'This is Your Code:'.$code;
 
-                            $mail->send();
-                            $wrong = '<div class="row row-cols-1 row-cols-md-3">
-                                <div class="col">
-                                    <div class="alert alert-warning text-success" role="alert">
-                                        Code Sended
-                                    </div>
+                        $mail->send();
+                        $wrong = '<div class="row row-cols-1 row-cols-md-3">
+                            <div class="col">
+                                <div class="alert alert-warning text-success" role="alert">
+                                    Code Sended
                                 </div>
-                            </div>';
-                        } catch (Exception $e) {
-                            goto  SkipChecks;
-                        }
+                            </div>
+                        </div>';
+                    } catch (Exception $e) {
+                        goto  SkipChecks;
+                    }
                 }
             } else {
                 GenerateCode:
@@ -62,7 +62,6 @@ if (isset($_SESSION['isloggedin'])) {
                 } else {
                     $sql3 = "INSERT INTO `codes`( `mail`, `type`, `code`) VALUES (
                         '$email', 'verify','$randomNumber')";
-                    echo $sql3;
                     $query = mysqli_query($connection, $sql3);
                     if (!$query){ 
                         $wrong = '<div class="row row-cols-1 row-cols-md-3">

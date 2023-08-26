@@ -21,6 +21,7 @@ if (!isset($_SESSION['isloggedin'])) {
             $country    = htmlentities($_POST['country']);
             if (strlen($password) >= 8) {
                 $password   = htmlentities($_POST['password']);
+                $password2   = htmlentities($_POST['password2']);
                 $search      = "SELECT * FROM users WHERE email='" . $email . "'";
                 $result      = mysqli_query($connection, $search);
                 $encrypt     = sha1($password);
@@ -105,7 +106,7 @@ if (!isset($_SESSION['isloggedin'])) {
 </head>
 
 <body style="background-color: <?php echo $config['THEME_COLOR'] ?>;">
-    <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
+    <img src=ct "<?php echo $config['URL'] ?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
     <div class="container">
         <div class="row row-cols-1 row-cols-md-1 m-4">
             <div class="col">
