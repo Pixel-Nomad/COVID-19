@@ -13,3 +13,7 @@
     text-decoration: none; /* Reset text decoration */
     /* Add more styles as needed */
 }
+
+.remove-anchor-decoration {
+    text-decoration: none;
+}

@@ -17,7 +17,7 @@ session_start();
 </head>
 
 <body style="background-color: #e4fffe;">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24">
@@ -425,6 +425,75 @@ session_start();
                     <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-6.png" class="rounded mx-auto d-block" alt="...">
                     <br>
                     <h6 class="text-center text-light">Use Towel to Dry</h6>
+                </div>
+            </div>
+            <br>
+            <br><br>
+        </div>
+    </div>
+    <hr class="divider " />
+    <div class="container mt-4 ">
+        <div class="container card p-3 bg-light shadow-static mt-5">
+            <div class="row row-cols-1 row-cols-md-2 m-4 pt-3">
+                <div class="col">
+                    <h1><b>Want To Book A Doctor or Test COVID-19?</b></h1>
+                </div>
+                <div class="col">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <button class="btn btn-dark me-md-2  fs-3" type="button">Book a appoinment</button>
+                        <button class="btn btn-dark fs-3" type="button">Test Covid-19</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid mt-4">
+        <div class="card p-3 bg-light  mt-5">
+            <div class="row row-cols-1 row-cols-md-3 pt-3 m-4 gx-5">
+                <div class="col">
+                    <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo8.png" class="rounded mx-auto d-block" alt="...">
+                    <p>The best way to prevent and slow down transmission is be well informed about the COVID-19 virus, the disease it causes and how it spreads.</p>
+                    <br>
+                    <p>Protect yourself and others from infec- tion by washing your hands or using an</p>
+                </div>
+                <div class="col mt-3">
+                    <div class="row">
+                        <h1 class="text-center"><b>Services</b></h1>
+                    </div>
+                    <br>
+                    <div class="row px-5">
+                        <h4><a href="" class="text-dark remove-anchor-decoration">test</a></h4>
+                    </div>
+                </div>
+                <div class="col mt-3">
+                    <h1 ><b>Contacts</b></h1>
+                    <br>
+                    <div class="row row-cols-2">
+                        <div class="col-1">
+                            <h4><i class="fas fa-map-marker-alt" style="color: #00aea5;"></i> </h4>
+                        </div>
+                        <div class="col-9">
+                            <h5>Flat 20, Reynolds Neck, North Helenaville, FV77 8WS</h5>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row row-cols-2">
+                        <div class="col-1">
+                            <h4><i class="fas fa-microphone-alt" style="color: #00aea5;"></i> </h4>
+                        </div>
+                        <div class="col-9">
+                            <h5>+2(305) 587-3407</h5>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row row-cols-2">
+                        <div class="col-1">
+                            <h4><i class="fas fa-envelope" style="color: #00aea5;"></i> </h4>
+                        </div>
+                        <div class="col-9">
+                            <h5>info@example.com</h5>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
