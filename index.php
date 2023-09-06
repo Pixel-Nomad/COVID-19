@@ -1,6 +1,46 @@
 <?php
 require('config.php');
 session_start();
+
+$TotalConfirmed = 0;
+$TotalRecovered = 0;
+$TotalDeaths = 0;
+
+// Define the API URL
+$api_url = 'https://disease.sh/v3/covid-19/all';
+
+// Initialize cURL session
+$ch = curl_init($api_url);
+
+// Set cURL options
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+// Execute cURL session and store the response in $data
+$data = curl_exec($ch);
+
+// Check for cURL errors
+if (curl_errno($ch)) {
+    echo 'Error: ' . curl_error($ch);
+    exit;
+}
+
+// Close cURL session
+curl_close($ch);
+
+// Parse the JSON response
+$response = json_decode($data, true);
+
+// Check if the response was successfully parsed
+if ($response) {
+    // Get global COVID-19 statistics
+    $TotalConfirmed = number_format($response['active']);
+    $TotalRecovered = number_format($response['recovered']);
+    $TotalDeaths = number_format($response['deaths']);
+} else {
+    $TotalConfirmed = mt_rand(111111111, 999999999);
+    $TotalRecovered = mt_rand(111111111, 999999999);
+    $TotalDeaths = mt_rand(111111111, 999999999);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,6 +49,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
     <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -17,10 +58,10 @@ session_start();
 </head>
 
 <body style="background-color: #e4fffe;">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top navbar-hover">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24">
+                <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo8.png" alt="" width="30" height="24">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -28,31 +69,27 @@ session_start();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active " aria-current="page" href="#">Home</a>
+                        <a class="nav-link active " aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Site Content
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                            <li><a class="dropdown-item navbar-hover" href="#about">About</a></li>
+                            <li><a class="dropdown-item navbar-hover" href="#symptoms">symptoms</a></li>
+                            <li><a class="dropdown-item navbar-hover" href="#protect">How to Protect</a></li>
+                            <li><a class="dropdown-item navbar-hover" href="#faq">Command Questions</a></li>
+                            <li><a class="dropdown-item navbar-hover" href="#experts">See Experts</a></li>
+                            <li><a class="dropdown-item navbar-hover" href="#handwash">How to wash hands</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  " aria-current="page" href="#">Search</a>
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#book">Book Appointment</a>
                     </li>
-                    <?php
-                    if (isset($_SESSION['isloggedin'])) {
-                        if ($_SESSION['Verified']) {
-                    ?>
-                            <li class="nav-item">
-                                <a class="nav-link  " aria-current="page" href="#">Request</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link  " aria-current="page" href="#">Report</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link  " aria-current="page" href="#">Appointment</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link  " aria-current="page" href="#">View Results</a>
-                            </li>
-                    <?php
-                        }
-                    }
-                    ?>
+                    <li class="nav-item">
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#book">Book Covid Test</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <?php
@@ -66,20 +103,20 @@ session_start();
                         } else {
                         ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Verify</a>
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/verify"><button type="button" class="btn btn-outline-warning">Verify</button></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Logout</a>
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
                             </li>
                         <?php
                         }
                     } else {
                         ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Login</a>
+                            <a class="nav-link" href="<?php echo $config['URL'] ?>/user/login"><button type="button" class="btn btn-outline-success">Login</button></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Register</a>
+                            <a class="nav-link" href="<?php echo $config['URL'] ?>/user/register"><button type="button" class="btn btn-outline-success">Reigster</button></a>
                         </li>
                     <?php
                     }
@@ -88,6 +125,7 @@ session_start();
             </div>
         </div>
     </nav>
+    <br id="home"><br>
     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -124,7 +162,10 @@ session_start();
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-    <hr class="divider " />
+    <br>
+    <hr class="divider" id="about" />
+    <br>
+    <br>
     <div class="container mt-4 ">
         <h1 class="text-center fs-1 m-4"><b>Coronavirus Disease (COVID-19)</b></h1>
         <h1 class="text-center fs-1 m-4"><b>Outbreak Situation</b></h1>
@@ -186,7 +227,7 @@ session_start();
                         <img src="<?php echo $config['URL'] ?>/assets/image/pics/virus1.png" class="rounded img-fluid mx-auto d-block" alt="...">
                     </div>
                 </div>
-                <h1 class="text-center mt-5">1531188</h1>
+                <h1 class="text-center mt-5"><?php echo $TotalConfirmed ?></h1>
                 <p class="text-center mt-2">Active Cases</p>
             </div>
             <div class="col">
@@ -195,7 +236,7 @@ session_start();
                         <img src="<?php echo $config['URL'] ?>/assets/image/pics/Virus2.png" class="rounded img-fluid mx-auto d-block" alt="...">
                     </div>
                 </div>
-                <h1 class="text-center mt-5">337276</h1>
+                <h1 class="text-center mt-5"><?php echo $TotalRecovered ?></h1>
                 <p class="text-center mt-2">Recovered Cases</p>
             </div>
             <div class="col">
@@ -204,12 +245,15 @@ session_start();
                         <img src="<?php echo $config['URL'] ?>/assets/image/pics/virus3.png" class="rounded img-fluid mx-auto d-block" alt="...">
                     </div>
                 </div>
-                <h1 class="text-center mt-5">89575</h1>
+                <h1 class="text-center mt-5"><?php echo $TotalDeaths ?></h1>
                 <p class="text-center mt-2">Total Deaths</p>
             </div>
         </div>
     </div>
-    <hr class="divider " />
+    <br>
+    <hr class="divider " id="symptoms" />
+    <br>
+    <br>
     <div class="container mt-4 ">
         <br>
         <div class="row row-cols-1 row-cols-md-2 mt-4">
@@ -246,6 +290,10 @@ session_start();
             </div>
         </div>
     </div>
+    <br>
+    <br id="protect">
+    <br>
+    <br>
     <div class="container mt-4">
         <h1 class="text-center fs-1 mt-4"><b>Take Steps To Protect</b></h1>
         <h1 class="text-center fs-1 "><b>Yourself</b></h1>
@@ -282,7 +330,10 @@ session_start();
         </div>
 
     </div>
-    <hr class="divider " />
+    <br>
+    <hr class="divider " id="faq" />
+    <br>
+    <br>
     <div class="container mt-4 ">
         <div class="row row-cols-1 row-cols-md-2 mt-4">
             <div class="col">
@@ -337,7 +388,10 @@ session_start();
         <br>
         <img src="<?php echo $config['URL'] ?>/assets/image/pics/map.png" class="img-fluid" alt="...">
     </div>
-    <hr class="divider " />
+    <br>
+    <hr class="divider " id="experts" />
+    <br>
+    <br>
     <div class="container mt-4">
         <br>
         <div class="row row-cols-1 row-cols-md-2">
@@ -386,52 +440,50 @@ session_start();
             </div>
         </div>
     </div>
-    <hr class="divider " />
+    <hr class="divider " id="handwash" />
     <div class="container-fluid mt-4 bg-dark">
-        <div class="container m-4">
-            <br>
-            <br>
-            <br>
-            <h1 class="fs-1 text-center text-light mt-4"><b>How to Wash Your Hand</b></h1>
-            <h1 class="fs-1 text-center text-light"><b>Properly</b></h1>
-            <br>
-            <div class="row row-cols-1 row-cols-md-6 ps-5">
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-1.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Apply Soap on Hand</h6>
-                </div>
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-2.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Palm to Palm</h6>
-                </div>
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-3.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Between Fingers</h6>
-                </div>
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-4.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Back of The Hands</h6>
-                </div>
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-5.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Clean with Water</h6>
-                </div>
-                <div class="col">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-6.png" class="rounded mx-auto d-block" alt="...">
-                    <br>
-                    <h6 class="text-center text-light">Use Towel to Dry</h6>
-                </div>
+        <br>
+        <br>
+        <br>
+        <h1 class="fs-1 text-center text-light mt-4"><b>How to Wash Your Hand</b></h1>
+        <h1 class="fs-1 text-center text-light"><b>Properly</b></h1>
+        <br>
+        <div class="row row-cols-1 row-cols-md-6 ps-5">
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-1.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Apply Soap on Hand</h6>
             </div>
-            <br>
-            <br><br>
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-2.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Palm to Palm</h6>
+            </div>
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-3.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Between Fingers</h6>
+            </div>
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-4.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Back of The Hands</h6>
+            </div>
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-5.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Clean with Water</h6>
+            </div>
+            <div class="col">
+                <img src="<?php echo $config['URL'] ?>/assets/image/pics/hadnwash-6.png" class="rounded mx-auto d-block" alt="...">
+                <br>
+                <h6 class="text-center text-light">Use Towel to Dry</h6>
+            </div>
         </div>
+        <br>
+        <br><br>
     </div>
-    <hr class="divider " />
+    <hr class="divider " id="book" />
     <div class="container mt-4 ">
         <div class="container card p-3 bg-light shadow-static mt-5">
             <div class="row row-cols-1 row-cols-md-2 m-4 pt-3">
@@ -466,7 +518,7 @@ session_start();
                     </div>
                 </div>
                 <div class="col mt-3">
-                    <h1 ><b>Contacts</b></h1>
+                    <h1><b>Contacts</b></h1>
                     <br>
                     <div class="row row-cols-2">
                         <div class="col-1">

@@ -17,3 +17,14 @@
 .remove-anchor-decoration {
     text-decoration: none;
 }
+
+.navbar-hover:hover {
+    color: #00aea5 !important;
+}
+
+body {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}

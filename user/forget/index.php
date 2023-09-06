@@ -33,18 +33,21 @@ if (!isset($_SESSION['isloggedin'])) {
                             $mail->isSMTP();
                             $mail->Host       = 'smtp.gmail.com';
                             $mail->SMTPAuth   = true;
-                            $mail->Username   = 'mr.tgamer247797704@gmail.com';
-                            $mail->Password   = 'seasiuyldxhdnahs';
+                            $mail->Username   = 'emergency.med.svc@gmail.com';
+                            $mail->Password   = 'kjovncbmradpqhvu';
                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                             $mail->Port       = 587;
                             // Recipients
-                            $mail->setFrom('mr.tgamer247797704@gmail.com', 'NoReply - Forget Code');
+                            $mail->setFrom('emergency.med.svc@gmail.com', 'NoReply - Emergency Medical Center');
                             $mail->addAddress($_SESSION['forget-email'], $_SESSION['forget-email']); // Email and name of recipient
 
                             // Content
                             $mail->isHTML(true); // Set email format to HTML
-                            $mail->Subject = 'Forget Code Request';
-                            $mail->Body    = 'This is Your Code:' . $code;
+                            $mail->Subject = 'Email Verifcation';
+                            $emailBody = file_get_contents($config['URL'].'/verify.html'); // Load the HTML template
+                            $emailBody = str_replace('{VERIFICATION_CODE}', $code, $emailBody);
+                            $emailBody = str_replace('{email}', substr($_SESSION['user-email'], 0, strpos($_SESSION['user-email'], "@")), $emailBody);
+                            $mail->Body = $emailBody;
 
                             $mail->send();
                             $wrong = '<div class="row row-cols-1 row-cols-md-3">
@@ -61,7 +64,7 @@ if (!isset($_SESSION['isloggedin'])) {
                     }
                 } else {
                     GenerateCode:
-                    $randomNumber = mt_rand(10000000, 99999999);
+                    $randomNumber = mt_rand(100000, 999999);
                     $sql2 = "SELECT * FROM `codes` WHERE `mail`= '$email' AND `type`='forget' AND `code`= '$randomNumber'";
                     $result2 = mysqli_query($connection, $sql2);
                     $total2  = mysqli_num_rows($result2);
@@ -85,18 +88,21 @@ if (!isset($_SESSION['isloggedin'])) {
                                 $mail->isSMTP();
                                 $mail->Host       = 'smtp.gmail.com';
                                 $mail->SMTPAuth   = true;
-                                $mail->Username   = 'mr.tgamer247797704@gmail.com';
-                                $mail->Password   = 'seasiuyldxhdnahs';
+                                $mail->Username   = 'emergency.med.svc@gmail.com';
+                                $mail->Password   = 'kjovncbmradpqhvu';
                                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                                 $mail->Port       = 587;
                                 // Recipients
-                                $mail->setFrom('mr.tgamer247797704@gmail.com', 'NoReply - Forget Code');
+                                $mail->setFrom('emergency.med.svc@gmail.com', 'NoReply - Emergency Medical Center');
                                 $mail->addAddress($_SESSION['forget-email'], $_SESSION['forget-email']); // Email and name of recipient
 
                                 // Content
                                 $mail->isHTML(true); // Set email format to HTML
-                                $mail->Subject = 'Forget Code Request';
-                                $mail->Body    = 'This is Your Code:' . $randomNumber;
+                                $mail->Subject = 'Email Verifcation';
+                                $emailBody = file_get_contents($config['URL'].'/verify.html'); // Load the HTML template
+                                $emailBody = str_replace('{VERIFICATION_CODE}', $randomNumber, $emailBody);
+                                $emailBody = str_replace('{email}', substr($_SESSION['user-email'], 0, strpos($_SESSION['user-email'], "@")), $emailBody);
+                                $mail->Body = $emailBody;
 
                                 $mail->send();
                                 $wrong = '<div class="row row-cols-1 row-cols-md-3">
@@ -220,13 +226,24 @@ if (!isset($_SESSION['isloggedin'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forget</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
     <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo $config['URL'] ?>/assets/css/global.css">
 </head>
 
+<?php
+if ($config['STATIC_BACKGROUND']){
+?>
 <body style="background-color: <?php echo $config['THEME_COLOR'] ?>;">
+<?php
+} else {
+?>
+<body background="<?php echo $config['URL'] ?>/assets/image/pics/background.jpg">
+<?php
+}
+?>
     <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
     <div class="container">
         <div class="row row-cols-1 row-cols-md-3 m-4">

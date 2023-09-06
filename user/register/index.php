@@ -99,18 +99,74 @@ if (!isset($_SESSION['isloggedin'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
     <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo $config['URL'] ?>/assets/css/global.css">
 </head>
 
+<?php
+if ($config['STATIC_BACKGROUND']){
+?>
 <body style="background-color: <?php echo $config['THEME_COLOR'] ?>;">
-    <img src=ct "<?php echo $config['URL'] ?>/assets/image/logo/logo9.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
+<?php
+} else {
+?>
+<body background="<?php echo $config['URL'] ?>/assets/image/pics/background.jpg">
+<?php
+}
+?>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-hover">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo8.png" alt="" width="30" height="24">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <?php
+                    if (isset($_SESSION['isloggedin'])) {
+                        if ($_SESSION['Verified']) {
+                    ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">My Profile</a>
+                            </li>
+                        <?php
+                        } else {
+                        ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/verify"><button type="button" class="btn btn-outline-warning">Verify</button></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
+                            </li>
+                        <?php
+                        }
+                    } else {
+                        ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?php echo $config['URL'] ?>/user/login"><button type="button" class="btn btn-outline-success">Login</button></a>
+                        </li>
+                     <?php
+                    }
+                    ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container">
         <div class="row row-cols-1 row-cols-md-1 m-4">
-            <div class="col">
+            <div class="col mt-4">
                 <div class="card addHover p-3 mb-5 bg-light rounded">
+                    <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo7.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
                     <div class="card-body">
                         <h5 class="card-title text-center">Create Account</h5>
                         <form method="post">
