@@ -41,11 +41,8 @@ charts.forEach(function (chart) {
 });
 
 $(document).ready(function () {
-  var table = $('.data-table').DataTable({
+  $('.data-table').DataTable({
     ordering: false,
-    search: {
-      return: true
-    },
   });
-
+  $('.data-table2').DataTable();
 });

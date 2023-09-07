@@ -1,6 +1,141 @@
 <?php
 require('../config.php');
 session_start();
+$data = '';
+$alert = '';
+$connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
+if ($connection) {
+    $query = "SELECT * FROM hospitals";
+    $result = mysqli_query($connection, $query);
+    $total  = mysqli_num_rows($result);
+    if ($total >= 1) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data .= '<tr>
+                <td>' . $row['hospital_name'] . '</td>
+                <td>' . $row['timing'] . '</td>
+                <td>' . $row['area'] . '</td>
+                <td>' . $row['city'] . '</td>
+                <td>' . $row['test'] . '</td>
+                <td>' . $row['vaccine'] . '</td>
+                <td>';
+            if (isset($_SESSION['isloggedin'])) {
+                if ($_SESSION['Verified']) {
+                    $data .= '<form method="post">
+                    <div class="d-grid gap-2">
+                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
+                        <input type="submit" value="Appointment" class="btn btn-outline-danger" name="Appointment">
+                    </div>
+                </form>
+                <form method="post">
+                    <div class="d-grid gap-2">
+                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
+                        <input type="submit" value="Test" class="btn btn-outline-primary" name="Test">
+                    </div>
+                </form>
+                <form method="post">
+                    <div class="d-grid gap-2">
+                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
+                        <input type="submit" value="Vaccination" class="btn btn-outline-success" name="Vaccination">
+                    </div>
+                </form>';
+                } else {
+                    $data .= '<span class="text-danger">verify before booking</span>';
+                }
+            } else {
+                $data .= '<span class="text-danger">Login before booking</span>';
+            }
+            $data .= '</td>
+            </tr>';
+        }
+    }
+    if (isset($_POST['Appointment'])) {
+        $user_id = $_SESSION['user-id'];
+        $hospital_id = $_POST['id'];
+        $type = 'normal';
+        $booking_time = date("Y-m-d H:i:s");
+        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
+        $result = mysqli_query($connection, $query);
+        $total  = mysqli_num_rows($result);
+        if ($total >= 1) {
+            $alert = '<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>Failed to book your normal appointment</p>
+                <hr>
+                <p class="mb-0">Please cancel your privious normal appointment to get new one from other hospital</p>
+            </div>';
+        } else {
+            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
+            echo  $query;
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $alert = '<div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Success!</h4>
+                    <p>Successfully Booked your normal appointment now you will receive an email when we confirm your appointment</p>
+                    <hr>
+                    <p class="mb-0">Stay home stay safe</p>
+                </div>';
+            }
+        }
+    }
+    if (isset($_POST['Test'])) {
+        $user_id = $_SESSION['user-id'];
+        $hospital_id = $_POST['id'];
+        $type = 'test';
+        $booking_time = date("Y-m-d H:i:s");
+        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
+        $result = mysqli_query($connection, $query);
+        $total  = mysqli_num_rows($result);
+        if ($total >= 1) {
+            $alert = '<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>Failed to book your Covid test appointment</p>
+                <hr>
+                <p class="mb-0">Please cancel your privious Covid test appointment to get new one from other hospital</p>
+            </div>';
+        } else {
+            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
+            echo  $query;
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $alert = '<div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Success!</h4>
+                    <p>Successfully Booked your Covid test appointment now you will receive an email when we confirm your appointment</p>
+                    <hr>
+                    <p class="mb-0">Stay home stay safe</p>
+                </div>';
+            }
+        }
+    }
+    if (isset($_POST['Vaccination'])) {
+        $user_id = $_SESSION['user-id'];
+        $hospital_id = $_POST['id'];
+        $type = 'vaccine';
+        $booking_time = date("Y-m-d H:i:s");
+        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
+        $result = mysqli_query($connection, $query);
+        $total  = mysqli_num_rows($result);
+        if ($total >= 1) {
+            $alert = '<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>Failed to book your Vaccination appointment</p>
+                <hr>
+                <p class="mb-0">Please cancel your privious Vaccination appointment to get new one from other hospital</p>
+            </div>';
+        } else {
+            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
+            echo  $query;
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $alert = '<div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Success!</h4>
+                    <p>Successfully Booked your Vaccination appointment now you will receive an email when we confirm your appointment</p>
+                    <hr>
+                    <p class="mb-0">Stay home stay safe</p>
+                </div>';
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +179,10 @@ if ($config['STATIC_BACKGROUND']) {
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link active " aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page">Booking</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
@@ -84,6 +222,20 @@ if ($config['STATIC_BACKGROUND']) {
         <br>
         <br>
         <br>
+        <div class="container">
+            <?php
+            echo $alert;
+            ?>
+        </div>
+        <?php
+        if ($alert == ' ') {
+        ?>
+            <br class="d-none d-md-block">
+            <br class="d-none d-md-block">
+            <br class="d-none d-md-block">
+        <?php
+        }
+        ?>
         <div class="container mt-5">
             <div class="card ms-3 me-3">
                 <div class="card-header">
@@ -104,215 +256,9 @@ if ($config['STATIC_BACKGROUND']) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Hospital Name</td>
-                                    <td>Tue 08:00 - 10:00</td>
-                                    <td>Area</td>
-                                    <td>City</td>
-                                    <td>Test 1 <br>Test 3</td>
-                                    <td>Vaccine 1 <br> Vaccine 3</td>
-                                    <td>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-danger">Appointment</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-primary">Test</button>
-                                        </div>
-                                        <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success">Vaccination</button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <?php
+                                echo $data;
+                                ?>
                             </tbody>
                             <tfoot>
                                 <tr>

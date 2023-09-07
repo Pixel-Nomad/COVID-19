@@ -85,11 +85,21 @@ if ($response) {
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#book">Book Appointment</a>
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Appointment</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#book">Book Covid Test</a>
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Covid Test</a>
                     </li>
+                    <?php
+                    if (isset($_SESSION['isloggedin'])) {
+                        if ($_SESSION['Verified']) {
+                    ?>
+                        <li class="nav-item">
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/appointments">My Appointments</a>
+                        </li>
+                    <?php
+                        }}
+                    ?>
                 </ul>
                 <ul class="navbar-nav">
                     <?php
@@ -492,8 +502,8 @@ if ($response) {
                 </div>
                 <div class="col">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                        <button class="btn btn-dark me-md-2  fs-3" type="button">Book a appoinment</button>
-                        <button class="btn btn-dark fs-3" type="button">Test Covid-19</button>
+                        <a href="<?php echo $config['URL'] ?>/hospitals"><button class="btn btn-dark me-md-2  fs-3" type="button">Book a appoinment</button></a>
+                        <a href="<?php echo $config['URL'] ?>/hospitals"><button class="btn btn-dark me-md-2  fs-3" type="button">Test Covid-19</button></a>
                     </div>
                 </div>
             </div>

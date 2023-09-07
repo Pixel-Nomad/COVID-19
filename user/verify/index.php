@@ -37,7 +37,7 @@ if (isset($_SESSION['isloggedin'])) {
                         // Content
                         $mail->isHTML(true); // Set email format to HTML
                         $mail->Subject = 'Email Verifcation';
-                        $emailBody = file_get_contents($config['URL'].'/verify.html'); // Load the HTML template
+                        $emailBody = file_get_contents($config['URL'].'/emails/verify.html'); // Load the HTML template
                         $emailBody = str_replace('{VERIFICATION_CODE}', $code, $emailBody);
                         $emailBody = str_replace('{email}', substr($_SESSION['user-email'], 0, strpos($_SESSION['user-email'], "@")), $emailBody);
                         $mail->Body = $emailBody;
@@ -92,7 +92,7 @@ if (isset($_SESSION['isloggedin'])) {
                             // Content
                             $mail->isHTML(true); // Set email format to HTML
                             $mail->Subject = 'Email Verifcation';
-                            $emailBody = file_get_contents($config['URL'].'/verify.html'); // Load the HTML template
+                            $emailBody = file_get_contents($config['URL'].'/emails/verify.html'); // Load the HTML template
                             $emailBody = str_replace('{VERIFICATION_CODE}', $randomNumber, $emailBody);
                             $emailBody = str_replace('{email}', substr($_SESSION['user-email'], 0, strpos($_SESSION['user-email'], "@")), $emailBody);
                             $mail->Body = $emailBody;
