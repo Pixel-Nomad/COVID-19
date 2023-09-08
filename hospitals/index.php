@@ -65,7 +65,6 @@ if ($connection) {
             </div>';
         } else {
             $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            echo  $query;
             $result = mysqli_query($connection, $query);
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">
@@ -94,7 +93,6 @@ if ($connection) {
             </div>';
         } else {
             $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            echo  $query;
             $result = mysqli_query($connection, $query);
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">
@@ -123,7 +121,6 @@ if ($connection) {
             </div>';
         } else {
             $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            echo  $query;
             $result = mysqli_query($connection, $query);
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">

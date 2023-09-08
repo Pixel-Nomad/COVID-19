@@ -107,7 +107,10 @@ if ($response) {
                         if ($_SESSION['Verified']) {
                     ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">My Profile</a>
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/settings"><button type="button" class="btn btn-outline-success">My Profile</button></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
                             </li>
                         <?php
                         } else {

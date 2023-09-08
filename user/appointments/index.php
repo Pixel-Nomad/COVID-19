@@ -48,6 +48,15 @@ if (isset($_SESSION['isloggedin'])) {
                     }
                 }
             }
+            if (isset($_POST['Cancel'])) {
+                $id = $_POST['id'];
+                $query = "UPDATE appointments SET `status`='cancelled' WHERE appointment_id = $id";
+                $result = mysqli_query($connection, $query);
+                if ($result) {
+                    header('location: ' . $config['URL'].'/user/appointments');
+                    exit();
+                }
+            }
         }
     } else {
         if (isset($_SERVER['HTTP_REFERER'])) {
@@ -171,7 +180,7 @@ if ($config['STATIC_BACKGROUND']) {
         <div class="container mt-5">
             <div class="card ms-3 me-3">
                 <div class="card-header">
-                    <span><i class="bi bi-table me-2"></i></span> My Confirmed Appointments
+                    <span><i class="bi bi-table me-2"></i></span> My Approved Appointments
                 </div>
                 <div class="card-body">
                     <div class="table-responsive ">
@@ -206,7 +215,7 @@ if ($config['STATIC_BACKGROUND']) {
         <div class="container mt-5">
             <div class="card ms-3 me-3">
                 <div class="card-header">
-                    <span><i class="bi bi-table me-2"></i></span> My Appointments
+                    <span><i class="bi bi-table me-2"></i></span> My Pending / Canclled Appointments
                 </div>
                 <div class="card-body">
                     <div class="table-responsive ">

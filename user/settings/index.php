@@ -2,82 +2,27 @@
 require('../../config.php');
 session_start();
 $alert = "";
-if (!isset($_SESSION['isloggedin'])) {
-    session_unset();
-    session_destroy();
-    $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
-    if ($connection) {
-        if (isset($_POST['register'])) {
-            $fname      = htmlentities($_POST['fname']);
-            $lname      = htmlentities($_POST['lname']);
-            $email      = htmlentities($_POST['email']);
-            $contact    = htmlentities(strval($_POST['contact']));
-            $password   = $_POST['password'];
-            $password2  = $_POST['password2'];
-            $address    = htmlentities($_POST['address']);
-            $city       = htmlentities($_POST['city']);
-            $state      = htmlentities($_POST['state']);
-            $postal     = htmlentities($_POST['postal']);
-            $country    = htmlentities($_POST['country']);
-            if (strlen($password) >= 8) {
-                $password   = htmlentities($_POST['password']);
-                $password2   = htmlentities($_POST['password2']);
-                $search      = "SELECT * FROM users WHERE email='" . $email . "'";
-                $result      = mysqli_query($connection, $search);
-                $encrypt     = sha1($password);
-                $unique      = true;
+if (isset($_SESSION['isloggedin'])) {
+    if ($_SESSION['Verified']) {
+        $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
+        if ($connection) {
+            if (isset($_POST['submit3'])){
+                $id = $_SESSION['user-id'];
+                $query = "DELETE FROM `appointments` WHERE `user_id` = $id";
+                $result = mysqli_query($connection,$query);
                 if ($result) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        if ($row['email'] == $email) {
-                            $unique = false;
-                        }
-                    }
-                }
-                if ($password == $password2 && $unique) {
-                    $sql = "INSERT INTO `users` (`fname`,`lname`,`email`,`contact`,`password`,`address`,`city`,`state`,`postal`,`country`)
-                        VALUES ('$fname','$lname','$email','$contact','$encrypt','$address','$city','$state','$postal','$country')";
-                    echo $sql;
-                    $query = mysqli_query($connection, $sql);
-                    if ($query) {
-                        header("location: " . $config['URL'] . "/user/login");
+                    $query = "DELETE FROM `users` WHERE `user_id` = $id";
+                    $result2 = mysqli_query($connection,$query);
+                    if ($result2) {
+                        session_unset();
+                        session_destroy();
+                        header('location: '.$config['URL'].'/user/login');
                         exit();
-                    } else {
-                        $alert = '<div class="container mt-5">
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                This is a success alert that will automatically hide after 5 seconds.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>';
-                    }
-                } else {
-                    if (!$unique) {
-                        $alert = '<div class="container mt-5">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Email already registered
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>';
-                    } else {
-                        $alert = '<div class="container mt-5">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Password Not Matched
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>';
                     }
                 }
-            } else {
-                $alert = '<div class="container mt-5">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Password must be 8 characters long
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>';
             }
         }
-    }
-} else {
-    if (!$_SESSION['Verified']) {
+    } else {
         if (isset($_SERVER['HTTP_REFERER'])) {
             header('location: ' . $_SERVER['HTTP_REFERER']);
             exit();
@@ -85,8 +30,13 @@ if (!isset($_SESSION['isloggedin'])) {
             header('location: ' . $config['URL']);
             exit();
         }
+    }
+} else {
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        header('location: ' . $_SERVER['HTTP_REFERER']);
+        exit();
     } else {
-        header('location: ' . $config['URL'] . '/user/verify');
+        header('location: ' . $config['URL']);
         exit();
     }
 }
@@ -98,25 +48,16 @@ if (!isset($_SESSION['isloggedin'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <title>My Profile</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous" />
     <link rel="stylesheet" href="<?php echo $config['URL'] ?>/assets/css/global.css">
 </head>
 
-<?php
-if ($config['STATIC_BACKGROUND']){
-?>
-<body style="background-color: <?php echo $config['THEME_COLOR'] ?>;">
-<?php
-} else {
-?>
-<body background="<?php echo $config['URL'] ?>/assets/image/pics/background.jpg">
-<?php
-}
-?>
+<body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-hover">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -128,74 +69,71 @@ if ($config['STATIC_BACKGROUND']){
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
                     </li>
-                </ul>
-                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Appointment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Covid Test</a>
+                    </li>
                     <?php
                     if (isset($_SESSION['isloggedin'])) {
                         if ($_SESSION['Verified']) {
                     ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">My Profile</a>
+                                <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/appointments">My Appointments</a>
                             </li>
-                        <?php
-                        } else {
-                        ?>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/verify"><button type="button" class="btn btn-outline-warning">Verify</button></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo $config['URL'] ?>/user/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
-                            </li>
-                        <?php
+                    <?php
                         }
-                    } else {
-                        ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?php echo $config['URL'] ?>/user/login"><button type="button" class="btn btn-outline-success">Login</button></a>
-                        </li>
-                     <?php
                     }
                     ?>
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="container">
-        <div class="row row-cols-1 row-cols-md-1 m-4">
-            <div class="col mt-4">
-                <div class="card addHover p-3 mb-5 bg-light rounded">
-                    <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo7.png" class="rounded mx-auto d-block" alt="logo" onclick="redir('<?php echo $config['URL'] ?>')">
-                    <div class="card-body">
-                        <h5 class="card-title text-center">Create Account</h5>
+    <div class="container mt-4">
+        <h1 class="text-center pt-3 pb-3">Account Settings</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="list-group">
+                    <a href="#account-details" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+                        <i class="fas fa-user me-2"></i> Account Details
+                    </a>
+                    <a href="#change-password" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-lock me-2"></i> Change Password
+                    </a>
+                    <a href="#delete-account" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-trash me-2"></i> Delete Account
+                    </a>
+                    <a href="#logout" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+
+            </div>
+            <div class="col-md-9">
+                <div class="tab-content">
+                    <div id="account-details" class="tab-pane fade show active">
+                        <h4>Account Details</h4>
                         <form method="post">
                             <div class="row row-cols-md-2 d-none d-sm-none d-md-flex d-lg-flex d-xl-flex d-xxl-flex">
                                 <div class="col">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="fname" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-fname']?>" required name="fname" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">First Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" required name="email" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Email Address</label>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" required name="password" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Enter Password</label>
-                                        <p>Password must be 8 characters long</p>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="address" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-address']?>"  required name="address" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Address</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="state" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-state']?>" required name="state" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">State</label>
                                     </div>
                                     <div class="form-floating mb-3">
                                         <select class="form-select" name="country" id="floatingCountry">
-                                            <option value="" disabled selected>Select your country</option>
+                                            <option value="<?php echo $_SESSION['user-country']?>" disabled selected>Select your country</option>
                                             <option value="AF">Afghanistan</option>
                                             <option value="AX">Aland Islands</option>
                                             <option value="AL">Albania</option>
@@ -452,39 +390,36 @@ if ($config['STATIC_BACKGROUND']){
                                         </select>
                                         <label for="floatingCountry">Country</label>
                                     </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" required name="password" id="floatingInput" placeholder="name@example.com">
+                                        <label for="floatingInput">Confirm Password</label>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="lname" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-lname']?>" required name="lname" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Last Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="number" class="form-control" required name="contact" id="floatingInput" placeholder="name@example.com">
+                                        <input type="number" class="form-control" value="<?php echo $_SESSION['user-contact']?>" required name="contact" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Contact Number</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" required name="password2" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Re-Enter Password</label>
-                                        <br>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="city" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-city']?>" required name="city" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">City</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="number" class="form-control" required name="postal" id="floatingInput" placeholder="name@example.com">
+                                        <input type="number" class="form-control" value="<?php echo $_SESSION['user-postal']?>" required name="postal" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Postal Code</label>
                                     </div>
                                     <div class="d-grid gap-2">
-                                        <input type="submit" class="btn btn-primary mt-2" value="Register" name="register">
+                                        <input type="submit" class="btn btn-primary mt-2" value="Update" name="update">
                                     </div>
                                 </div>
                                 <?php
                                 echo $alert
                                 ?>
-                                <a href="<?php echo $config['URL'] ?>/user/login">Already have an account? Login Now!</a>
                             </div>
-
                         </form>
                         <form method="post">
                             <div class="row row-cols-1 row-cols-md-2 d-sm-flex d-md-none d-lg-none d-xl-none d-xxl-none">
@@ -493,49 +428,36 @@ if ($config['STATIC_BACKGROUND']){
                                 ?>
                                 <div class="col">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="fname" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-fname']?>" required name="fname" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">First Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="lname" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-lname']?>" required name="lname" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Last Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" required name="email" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Email Address</label>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="number" class="form-control" required name="contact" id="floatingInput" placeholder="name@example.com">
+                                        <input type="number" class="form-control" value="<?php echo $_SESSION['user-contact']?>" required name="contact" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Contact Number</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" required name="password" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Enter Password</label>
-                                        <p>Password must be 8 characters long</p>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" required name="password2" id="floatingInput" placeholder="name@example.com">
-                                        <label for="floatingInput">Re-Enter Password</label>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="address" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-address']?>" required name="address" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Address</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="city" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-city']?>" required name="city" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">City</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" required name="state" id="floatingInput" placeholder="name@example.com">
+                                        <input type="text" class="form-control" value="<?php echo $_SESSION['user-state']?>" required name="state" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">State</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="number" class="form-control" required name="postal" id="floatingInput" placeholder="name@example.com">
+                                        <input type="number" class="form-control" value="<?php echo $_SESSION['user-postal']?>" required name="postal" id="floatingInput" placeholder="name@example.com">
                                         <label for="floatingInput">Postal Code</label>
                                     </div>
                                     <div class="form-floating mb-3">
                                         <select class="form-select" name="country" id="floatingCountry">
-                                            <option value="" disabled selected>Select your country</option>
+                                            <option value="<?php echo $_SESSION['user-country']?>" disabled selected>Select your country</option>
                                             <option value="AF">Afghanistan</option>
                                             <option value="AX">Aland Islands</option>
                                             <option value="AL">Albania</option>
@@ -792,16 +714,36 @@ if ($config['STATIC_BACKGROUND']){
                                         </select>
                                         <label for="floatingCountry">Country</label>
                                     </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" required name="password" id="floatingInput" placeholder="name@example.com">
+                                        <label for="floatingInput">Confirm Password</label>
+                                    </div>
                                     <div class="d-grid gap-2">
-                                        <input type="submit" class="btn btn-primary mt-2" value="Register" name="register">
+                                        <input type="submit" class="btn btn-primary mt-2" value="Update" name="update">
                                     </div>
                                 </div>
-
-                                <a href="<?php echo $config['URL'] ?>/user/login">Already have an account? Login Now!</a>
                             </div>
 
                         </form>
-
+                        <br>
+                    </div>
+                    <div id="change-password" class="tab-pane fade">
+                        <h4>Change Password</h4>
+                        <form method="post">
+                        </form>
+                    </div>
+                    <div id="delete-account" class="tab-pane fade">
+                        <h4>Delete Account</h4>
+                        <p>Are you sure you want to delete your account?</p>
+                        <form method="post">
+                            <input type="submit" class="btn btn-danger" name="submit3" value="Yes, Delete">
+                        </form>
+                    </div>
+                    <div id="logout" class="tab-pane fade">
+                        <h4>Logout</h4>
+                        <p>Click the button below to logout:</p>
+                        <a href='<?php echo $config['URL'] ?>/user/logout' class="btn btn-primary">Logout</a>
+                        <br>
                     </div>
                 </div>
             </div>

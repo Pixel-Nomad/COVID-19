@@ -1,5 +1,5 @@
 <?php
-    $config['URL'] = 'http://localhost';
+    $config['URL'] = 'https://project.aj-developments.com';
     $config['DB_URL'] = 'localhost:3306';
     $config['DB_USERNAME'] = 'root';
     $config['DB_PASSWORD'] = '';
