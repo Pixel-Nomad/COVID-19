@@ -1,17 +1,29 @@
 <?php
-require('../../../config.php');
+require('../../../../config.php');
 session_name('management_hospitals');
 session_start();
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
 if (isset($_SESSION['hospital-isloggedin'])) {
     if ($connection) {
+        if (isset($_POST['Delete'])) {
+            $user_id = $_SESSION['hospital-user-id'];
+            $hospital_id = $_SESSION['hospital-hospital-id'];
+            $query = "DELETE FROM `hospital_users` WHERE `user_id` = $user_id AND hospital_id = $hospital_id";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                session_unset();
+                session_destroy();
+                header('location: ' . $config['URL'] . '/management/hospitals/doctor/login/');
+                exit();
+            }
+        }
     }
 } else {
     if (isset($_SERVER['HTTP_REFERER'])) {
         header('location: ' . $_SERVER['HTTP_REFERER']);
         exit();
     } else {
-        header('location: ' . $config['URL'].'/management/hospitals/doctor/login/');
+        header('location: ' . $config['URL'] . '/management/hospitals/doctor/login/');
         exit();
     }
 }
@@ -46,8 +58,8 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                 <span class="navbar-toggler-icon" data-bs-target="#sidebar"></span>
             </button>
             <a class="navbar-brand me-auto ms-lg-0 ms-3 text-uppercase fw-bold" href="#"><?php
-        echo $_SESSION['hospital-hospital-name'] . ' | Dashboard';
-        ?></a>
+                                                                                            echo $_SESSION['hospital-hospital-name'] . ' | Dashboard';
+                                                                                            ?></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavBar" aria-controls="topNavBar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -78,7 +90,7 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                         </div>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-3 active">
+                        <a href="#" class="nav-link px-3">
                             <span class="me-2"><i class="bi bi-speedometer2"></i></span>
                             <span>Dashboard</span>
                         </a>
@@ -147,28 +159,19 @@ if (isset($_SESSION['hospital-isloggedin'])) {
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Available Vaccination</h4>
+                    <h4>Account Delete</h4>
                 </div>
             </div>
-            <div class="row row-cols-1 row-cols-md-4 row-cols-xl-6">
-                <?php
-                    $id = $_SESSION['hospital-user-id'];
-                    $query = "SELECT * FROM available_vaccine WHERE hospital_id = $id";
-                    $result = mysqli_query($connection, $query);
-                    $total  = mysqli_num_rows($result);
-                    if ($total >= 1) {
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            echo '
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-'.$row['vaccine_color'].' text-white h-100">
-                                    <div class="card-body py-5">'.$row['vaccine_type'].' ('.$row['vaccine_quantity'].')</div>
-                                </div>
-                            </div>
-                            ';
-                        }
-                    }
-                ?>
-                
+            <div class="container mt-5">
+                <h4>Are you sure you want to delete your account</h4>
+                <p>This action is not reverseable, you need to create new account and wait for approval.</p>
+                <form method="post">
+                <div class="d-grid gap-2 d-md-block">
+                        <input type="submit" value="Delete" name="Delete" class="btn btn-outline-danger">
+                </form>
+                    <button class="btn btn-outline-primary" type="button">No</button>
+                </div>
+
             </div>
         </div>
     </main>

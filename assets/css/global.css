@@ -26,3 +26,10 @@ body {
     background-size: cover;
     height: 100vh;
 }
+
+.bg-custom {
+    background-color: #00aea5 !important;
+}
+.bg-custom2 {
+    background-color: #004b48 !important;
+}

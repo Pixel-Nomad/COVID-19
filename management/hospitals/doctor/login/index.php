@@ -32,6 +32,15 @@ if (!isset($_SESSION['isloggedin'])) {
                         if ($total >= 1) {
                             session_start();
                             while ($row = mysqli_fetch_assoc($result)) {
+                                $id = $row['hospital_id'];
+                                $query2 = "SELECT * FROM hospitals WHERE hospital_id = $id";
+                                $result2 = mysqli_query($connection, $query2);
+                                $total2  = mysqli_num_rows($result2);
+                                if ($total2 == 1) {
+                                    while ($row2 = mysqli_fetch_assoc($result2)) {
+                                        $_SESSION['hospital-hospital-name'] = $row2['hospital_name'];
+                                    }
+                                }
                                 $_SESSION['hospital-user-id'] = $row['user_id'];
                                 $_SESSION['hospital-hospital-id'] = $row['hospital_id'];
                                 $_SESSION['hospital-name'] = $row['name'];
