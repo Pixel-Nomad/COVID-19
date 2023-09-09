@@ -36,7 +36,6 @@ if (!isset($_SESSION['isloggedin'])) {
                 if ($password == $password2 && $unique) {
                     $sql = "INSERT INTO `users` (`fname`,`lname`,`email`,`contact`,`password`,`address`,`city`,`state`,`postal`,`country`)
                         VALUES ('$fname','$lname','$email','$contact','$encrypt','$address','$city','$state','$postal','$country')";
-                    echo $sql;
                     $query = mysqli_query($connection, $sql);
                     if ($query) {
                         header("location: " . $config['URL'] . "/user/login");
@@ -44,7 +43,7 @@ if (!isset($_SESSION['isloggedin'])) {
                     } else {
                         $alert = '<div class="container mt-5">
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                This is a success alert that will automatically hide after 5 seconds.
+                                Failed To Register Try Again
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
