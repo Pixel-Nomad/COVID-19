@@ -53,7 +53,7 @@ if (isset($_SESSION['isloggedin'])) {
                 $query = "UPDATE appointments SET `status`='cancelled' WHERE appointment_id = $id";
                 $result = mysqli_query($connection, $query);
                 if ($result) {
-                    header('location: ' . $config['URL'].'/user/appointments');
+                    header('location: ' . $config['URL'] . '/user/appointments');
                     exit();
                 }
             }
@@ -119,11 +119,28 @@ if ($config['STATIC_BACKGROUND']) {
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
+                            <a class="nav-link  " aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page">Booking</a>
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Appointment</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Covid Test</a>
+                        </li>
+                        <?php
+                        if (isset($_SESSION['isloggedin'])) {
+                            if ($_SESSION['Verified']) {
+                        ?>
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="<?php echo $config['URL'] ?>/user/appointments">My Appointments</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/reports">My Results/Reports</a>
+                                </li>
+                        <?php
+                            }
+                        }
+                        ?>
                     </ul>
                     <ul class="navbar-nav">
                         <?php
@@ -131,7 +148,10 @@ if ($config['STATIC_BACKGROUND']) {
                             if ($_SESSION['Verified']) {
                         ?>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#">My Profile</a>
+                                    <a class="nav-link" href="<?php echo $config['URL'] ?>/user/settings"><button type="button" class="btn btn-outline-success">My Profile</button></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo $config['URL'] ?>/user/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
                                 </li>
                             <?php
                             } else {
@@ -168,7 +188,7 @@ if ($config['STATIC_BACKGROUND']) {
             ?>
         </div>
         <?php
-        if ($alert == ' ') {
+        if ($alert != '') {
         ?>
             <br class="d-none d-md-block">
             <br class="d-none d-md-block">
@@ -248,7 +268,91 @@ if ($config['STATIC_BACKGROUND']) {
         </div>
 
 
-
+        <div class="container-fluid mt-4">
+            <div class="card p-3 bg-light  mt-5">
+                <div class="row row-cols-1 row-cols-md-3 pt-3 m-4 gx-5">
+                    <div class="col">
+                        <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo8.png" class="rounded mx-auto d-block" alt="...">
+                        <p>The best way to prevent and slow down transmission is be well informed about the COVID-19 virus, the disease it causes and how it spreads.</p>
+                        <br>
+                        <p>Protect yourself and others from infec- tion by washing your hands or using an</p>
+                    </div>
+                    <div class="col mt-3">
+                        <div class="row">
+                            <h1 class="text-center"><b>Services</b></h1>
+                        </div>
+                        <br>
+                        <div class="row px-5">
+                            <div class="row">
+                                <div class="col">
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#home" class="text-dark remove-anchor-decoration">Home</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#about" class="text-dark remove-anchor-decoration">About</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#symptoms" class="text-dark remove-anchor-decoration">symptoms</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#protect" class="text-dark remove-anchor-decoration">How to Protect</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#faq" class="text-dark remove-anchor-decoration">Command Questions</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#experts" class="text-dark remove-anchor-decoration">See Experts</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/index.php#handwash" class="text-dark remove-anchor-decoration">How to wash hands</a></h6>
+                                </div>
+                                <div class="col">
+                                    <h6><a href="<?php echo $config['URL'] ?>/hospitals" class="text-dark remove-anchor-decoration">Book Appointment</a></h6>
+                                    <h6><a href="<?php echo $config['URL'] ?>/hospitals" class="text-dark remove-anchor-decoration">Book Covid Test</a></h6>
+                                    <?php
+                                    if (isset($_SESSION['isloggedin'])) {
+                                        if ($_SESSION['Verified']) {
+                                    ?>
+                                            <h6><a href="<?php echo $config['URL'] ?>/user/appointments" class="text-dark remove-anchor-decoration">My Appointments</a></h6>
+                                            <h6><a href="<?php echo $config['URL'] ?>/user/reports" class="text-dark remove-anchor-decoration">My Results/Reports</a></h6>
+                                            <h6><a href="<?php echo $config['URL'] ?>/user/settings" class="text-dark remove-anchor-decoration">My Profile</a></h6>
+                                        <?php
+                                        } else {
+                                        ?>
+                                            <h6><a href="<?php echo $config['URL'] ?>/user/verify" class="text-dark remove-anchor-decoration">Verify</a></h6>
+                                        <?php
+                                        }
+                                    } else {
+                                        ?>
+                                        <h6><a href="<?php echo $config['URL'] ?>/user/login" class="text-dark remove-anchor-decoration">Login</a></h6>
+                                        <h6><a href="<?php echo $config['URL'] ?>/user/register" class="text-dark remove-anchor-decoration">Register</a></h6>
+                                    <?php
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col mt-3">
+                        <h1><b>Contacts</b></h1>
+                        <br>
+                        <div class="row row-cols-2">
+                            <div class="col-1">
+                                <h4><i class="fas fa-map-marker-alt" style="color: #00aea5;"></i> </h4>
+                            </div>
+                            <div class="col-9">
+                                <h5>Flat 20, Reynolds Neck, North Helenaville, FV77 8WS</h5>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row row-cols-2">
+                            <div class="col-1">
+                                <h4><i class="fas fa-microphone-alt" style="color: #00aea5;"></i> </h4>
+                            </div>
+                            <div class="col-9">
+                                <h5>+2(305) 587-3407</h5>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row row-cols-2">
+                            <div class="col-1">
+                                <h4><i class="fas fa-envelope" style="color: #00aea5;"></i> </h4>
+                            </div>
+                            <div class="col-9">
+                                <h5>info@example.com</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
         <script src="<?php echo $config['URL'] ?>/vendor/jquery/jquery-3.5.1.js"></script>

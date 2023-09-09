@@ -1,136 +1,57 @@
 <?php
-require('../config.php');
+require('../../config.php');
 session_start();
 $data = '';
+$data2 = '';
 $alert = '';
-$connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
-if ($connection) {
-    $query = "SELECT * FROM hospitals";
-    $result = mysqli_query($connection, $query);
-    $total  = mysqli_num_rows($result);
-    if ($total >= 1) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $data .= '<tr>
-                <td>' . $row['hospital_name'] . '</td>
-                <td>' . $row['timing'] . '</td>
-                <td>' . $row['area'] . '</td>
-                <td>' . $row['city'] . '</td>
-                <td>' . $row['test'] . '</td>
-                <td>' . $row['vaccine'] . '</td>
-                <td>';
-            if (isset($_SESSION['isloggedin'])) {
-                if ($_SESSION['Verified']) {
-                    $data .= '<form method="post">
-                    <div class="d-grid gap-2">
-                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
-                        <input type="submit" value="Appointment" class="btn btn-outline-danger" name="Appointment">
-                    </div>
-                </form>
-                <form method="post">
-                    <div class="d-grid gap-2">
-                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
-                        <input type="submit" value="Test" class="btn btn-outline-primary" name="Test">
-                    </div>
-                </form>
-                <form method="post">
-                    <div class="d-grid gap-2">
-                        <input type="text" class="d-none" name="id" value="' . $row['hospital_id'] . '">
-                        <input type="submit" value="Vaccination" class="btn btn-outline-success" name="Vaccination">
-                    </div>
-                </form>';
-                } else {
-                    $data .= '<span class="text-danger">verify before booking</span>';
+if (isset($_SESSION['isloggedin'])) {
+    if ($_SESSION['Verified']) {
+        $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
+        if ($connection) {
+            $user_id = $_SESSION['user-id'];
+            $query = "SELECT * FROM reports INNER JOIN hospitals ON reports.hospital_id = hospitals.hospital_id WHERE reports.user_id = $user_id";
+            $result = mysqli_query($connection, $query);
+            $total  = mysqli_num_rows($result);
+            if ($total >= 1) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    if ($row['type'] == 'test') {
+                        $data .= '<tr>
+                        <td>' . $row['hospital_name'] . '</td>
+                        <td>' . $row['report_timing'] . '</td>
+                        <td>' . $row['test_type'] . '</td>
+                        <td>' . $row['test_result'] . '</td>
+                        </tr>';
+                    } elseif ($row['type'] == 'vaccine') {
+                        $data2 .= '<tr>
+                        <td>' . $row['hospital_name'] . '</td>';
+                        if ($row['report_timing'] == NULL) {
+                            $data2 .= '<td>Not Taken</td>';
+                        } else {
+                            $data2 .= '<td>' . $row['report_timing'] . '</td>';
+                        }
+                        $data2 .= '<td>' . $row['vaccine_type'] . '</td>
+                        <td>' . $row['vaccine_status'] . '</td>
+                        </tr>';
+                    }
                 }
-            } else {
-                $data .= '<span class="text-danger">Login before booking</span>';
             }
-            $data .= '</td>
-            </tr>';
+        }
+    } else {
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            header('location: ' . $_SERVER['HTTP_REFERER']);
+            exit();
+        } else {
+            header('location: ' . $config['URL']);
+            exit();
         }
     }
-    if (isset($_POST['Appointment'])) {
-        $user_id = $_SESSION['user-id'];
-        $hospital_id = $_POST['id'];
-        $type = 'normal';
-        $booking_time = date("Y-m-d H:i:s");
-        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
-        $result = mysqli_query($connection, $query);
-        $total  = mysqli_num_rows($result);
-        if ($total >= 1) {
-            $alert = '<div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">Error!</h4>
-                <p>Failed to book your normal appointment</p>
-                <hr>
-                <p class="mb-0">Please cancel your privious normal appointment to get new one from other hospital</p>
-            </div>';
-        } else {
-            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            $result = mysqli_query($connection, $query);
-            if ($result) {
-                $alert = '<div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your normal appointment now you will receive an email when we confirm your appointment</p>
-                    <hr>
-                    <p class="mb-0">Stay home stay safe</p>
-                </div>';
-            }
-        }
-    }
-    if (isset($_POST['Test'])) {
-        $user_id = $_SESSION['user-id'];
-        $hospital_id = $_POST['id'];
-        $type = 'test';
-        $booking_time = date("Y-m-d H:i:s");
-        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
-        $result = mysqli_query($connection, $query);
-        $total  = mysqli_num_rows($result);
-        if ($total >= 1) {
-            $alert = '<div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">Error!</h4>
-                <p>Failed to book your Covid test appointment</p>
-                <hr>
-                <p class="mb-0">Please cancel your privious Covid test appointment to get new one from other hospital</p>
-            </div>';
-        } else {
-            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            $result = mysqli_query($connection, $query);
-            if ($result) {
-                $alert = '<div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your Covid test appointment now you will receive an email when we confirm your appointment</p>
-                    <hr>
-                    <p class="mb-0">Stay home stay safe</p>
-                </div>';
-            }
-        }
-    }
-    if (isset($_POST['Vaccination'])) {
-        $user_id = $_SESSION['user-id'];
-        $hospital_id = $_POST['id'];
-        $type = 'vaccine';
-        $booking_time = date("Y-m-d H:i:s");
-        $query = "SELECT * FROM appointments WHERE user_id = $user_id AND `type` = '$type' AND `status` = 'pending'";
-        $result = mysqli_query($connection, $query);
-        $total  = mysqli_num_rows($result);
-        if ($total >= 1) {
-            $alert = '<div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">Error!</h4>
-                <p>Failed to book your Vaccination appointment</p>
-                <hr>
-                <p class="mb-0">Please cancel your privious Vaccination appointment to get new one from other hospital</p>
-            </div>';
-        } else {
-            $query = "INSERT INTO appointments (`hospital_id`,`user_id`,`type`,`status`,`booking_time`) VALUES ($hospital_id,$user_id,'$type','pending','$booking_time')";
-            $result = mysqli_query($connection, $query);
-            if ($result) {
-                $alert = '<div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your Vaccination appointment now you will receive an email when we confirm your appointment</p>
-                    <hr>
-                    <p class="mb-0">Stay home stay safe</p>
-                </div>';
-            }
-        }
+} else {
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        header('location: ' . $_SERVER['HTTP_REFERER']);
+        exit();
+    } else {
+        header('location: ' . $config['URL']);
+        exit();
     }
 }
 ?>
@@ -140,7 +61,7 @@ if ($connection) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospitals</title>
+    <title>My Reports</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
     <link rel="shortcut icon" href='<?php echo $config['URL'] ?>/assets/image/fav/fav.ico' type="image/x-icon">
@@ -151,7 +72,6 @@ if ($connection) {
     <link rel="stylesheet" href="<?php echo $config['URL'] ?>/vendor/data_tables/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="<?php echo $config['URL'] ?>/assets/css/dash.css">
 </head>
-
 <?php
 if ($config['STATIC_BACKGROUND']) {
 ?>
@@ -165,6 +85,7 @@ if ($config['STATIC_BACKGROUND']) {
         <?php
     }
         ?>
+
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top navbar-hover">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
@@ -176,10 +97,13 @@ if ($config['STATIC_BACKGROUND']) {
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/index.php">Home</a>
+                            <a class="nav-link  " aria-current="page" href="<?php echo $config['URL'] ?>/index.php#home">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Booking</a>
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Appointment</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/hospitals">Book Covid Test</a>
                         </li>
                         <?php
                         if (isset($_SESSION['isloggedin'])) {
@@ -189,7 +113,7 @@ if ($config['STATIC_BACKGROUND']) {
                                     <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/appointments">My Appointments</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/reports">My Results/Reports</a>
+                                    <a class="nav-link active" aria-current="page" href="<?php echo $config['URL'] ?>/user/reports">My Results/Reports</a>
                                 </li>
                         <?php
                             }
@@ -242,7 +166,7 @@ if ($config['STATIC_BACKGROUND']) {
             ?>
         </div>
         <?php
-        if ($alert == ' ') {
+        if ($alert != '') {
         ?>
             <br class="d-none d-md-block">
             <br class="d-none d-md-block">
@@ -253,47 +177,57 @@ if ($config['STATIC_BACKGROUND']) {
         <div class="container mt-5">
             <div class="card ms-3 me-3">
                 <div class="card-header">
-                    <span><i class="bi bi-table me-2"></i></span> Hospitals
+                    <span><i class="bi bi-table me-2"></i></span> Covid Test Results
                 </div>
                 <div class="card-body">
                     <div class="table-responsive ">
-                        <table id="example" class="table  table-striped data-table" style="width: 100%">
+                        <table id="example" class="table  table-striped data-table2" style="width: 100%">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Timing</th>
-                                    <th>Area</th>
-                                    <th>City</th>
-                                    <th>Covid Test</th>
-                                    <th>Covid Vaccines</th>
-                                    <th>Book</th>
+                                    <th>Hospital Name</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Result</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                echo $data;
+                                echo $data
                                 ?>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Timing</th>
-                                    <th>Area</th>
-                                    <th>City</th>
-                                    <th>Covid Test</th>
-                                    <th>Covid Vaccines</th>
-                                    <th>Book</th>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-        <br>
-        <br>
-        <div class="container-fluid mt-4">
-            <div class="card p-3 bg-light  mt-5">
+
+        <div class="container mt-5">
+            <div class="card ms-3 me-3">
+                <div class="card-header">
+                    <span><i class="bi bi-table me-2"></i></span> Covid Test Results
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive ">
+                        <table id="example" class="table  table-striped data-table2" style="width: 100%">
+                            <thead>
+                                <tr>
+                                    <th>Hospital Name</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                echo $data2
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card p-3 bg-light  mt-5">
                 <div class="row row-cols-1 row-cols-md-3 pt-3 m-4 gx-5">
                     <div class="col">
                         <img src="<?php echo $config['URL'] ?>/assets/image/logo/logo8.png" class="rounded mx-auto d-block" alt="...">
@@ -376,7 +310,6 @@ if ($config['STATIC_BACKGROUND']) {
                     </div>
                 </div>
             </div>
-        </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
         <script src="<?php echo $config['URL'] ?>/vendor/jquery/jquery-3.5.1.js"></script>
