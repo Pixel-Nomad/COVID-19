@@ -169,7 +169,7 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                 <div class="d-grid gap-2 d-md-block">
                         <input type="submit" value="Delete" name="Delete" class="btn btn-outline-danger">
                 </form>
-                    <button class="btn btn-outline-primary" type="button">No</button>
+                    <a href="<?php echo $config['URL'] ?>/management/hospitals/doctor/"><button class="btn btn-outline-primary" type="button">No</button></a>
                 </div>
 
             </div>

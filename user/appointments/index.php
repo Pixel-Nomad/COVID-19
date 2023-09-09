@@ -15,7 +15,7 @@ if (isset($_SESSION['isloggedin'])) {
             if ($total >= 1) {
                 $query2 = "SELECT hospital_name FROM hospitals INNER JOIN";
                 while ($row = mysqli_fetch_assoc($result)) {
-                    if ($row['status'] == 'pending' || $row['status'] == 'cancelled' || $row['status'] == 'visited') {
+                    if ($row['status'] == 'pending' || $row['status'] == 'cancelled' || $row['status'] == 'Rejected') {
                         $data .= '<tr>
                             <td>' . $row['hospital_name'] . '</td>
                             <td>' . $row['type'] . '</td>
@@ -38,7 +38,7 @@ if (isset($_SESSION['isloggedin'])) {
                         }
                         $data .= '</td>
                         </tr>';
-                    } elseif ($row['status'] == 'confirmed') {
+                    } elseif ($row['status'] == 'approved' || $row['status'] == 'visited' || $row['status'] == 'Not visited') {
                         $data2 .= '<tr>
                             <td>' . $row['hospital_name'] . '</td>
                             <td>' . $row['appointment_time'] . '</td>

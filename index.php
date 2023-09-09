@@ -18,12 +18,6 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 // Execute cURL session and store the response in $data
 $data = curl_exec($ch);
 
-// Check for cURL errors
-if (curl_errno($ch)) {
-    echo 'Error: ' . curl_error($ch);
-    exit;
-}
-
 // Close cURL session
 curl_close($ch);
 
@@ -37,9 +31,9 @@ if ($response) {
     $TotalRecovered = number_format($response['recovered']);
     $TotalDeaths = number_format($response['deaths']);
 } else {
-    $TotalConfirmed = mt_rand(111111111, 999999999);
-    $TotalRecovered = mt_rand(111111111, 999999999);
-    $TotalDeaths = mt_rand(111111111, 999999999);
+    $TotalConfirmed = number_format(mt_rand(111111111, 999999999));
+    $TotalRecovered = number_format(mt_rand(111111111, 999999999));
+    $TotalDeaths = number_format(mt_rand(111111111, 999999999));
 }
 ?>
 <!DOCTYPE html>

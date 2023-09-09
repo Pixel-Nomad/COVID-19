@@ -5,16 +5,6 @@ session_start();
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
 if (isset($_SESSION['hospital-isloggedin'])) {
     if ($connection) {
-        if (isset($_POST['update'])){
-            $id = $_POST['id'];
-            $quantity = $_POST['quantity'];
-            $query = "UPDATE available_vaccine SET vaccine_quantity = $quantity WHERE id = $id";
-            $result = mysqli_query($connection, $query);
-            if ($result){
-                header('location: ' . $config['URL'] . '/management/hospitals/doctor/');
-                exit();
-            }
-        }
     }
 } else {
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -157,39 +147,10 @@ if (isset($_SESSION['hospital-isloggedin'])) {
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Available Vaccination</h4>
+                    <h4>Appointments</h4>
                 </div>
             </div>
-            <div class="row row-cols-1 row-cols-md-4 row-cols-xl-6">
-                <?php
-                $id = $_SESSION['hospital-hospital-id'];
-                $query = "SELECT * FROM available_vaccine WHERE hospital_id = $id";
-                $result = mysqli_query($connection, $query);
-                $total  = mysqli_num_rows($result);
-                if ($total >= 1) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo '
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-' . $row['vaccine_color'] . ' text-white h-100">
-                                <div class="contianer px-3 pt-4">
-                                    <h5>' . $row['vaccine_type'] . '</h5>
-                                    <h6 class="text-end">Current Quantity ( <strong>' . $row['vaccine_quantity'] . '</strong> )</h6>
-                                </div>
-                                <form method="post">
-                                    <input type="text" class="d-none" value="' . $row['id'] . '" name="id">
-                                    <input type="number" class="form-control" min="0" max="1000" placeholder="Update Amount" required name="quantity">
-                                    <div class="d-grid gap-2">
-                                        <input type="submit" value="update" class="btn btn-primary" name="update"> 
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        ';
-                    }
-                }
-                ?>
-                
-            </div>
+            
         </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
