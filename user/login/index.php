@@ -64,7 +64,8 @@ if (!isset($_SESSION['isloggedin'])) {
         }
     }
 } else {
-    if (!$_SESSION['Verified']) {
+    if (
+        $_SESSION['Verified']) {
         if (isset($_SERVER['HTTP_REFERER'])) {
             header('location: ' . $_SERVER['HTTP_REFERER']);
             exit();

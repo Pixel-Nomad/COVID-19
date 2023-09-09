@@ -2,6 +2,7 @@
 require('../../config.php');
 session_start();
 $alert = "";
+$passwordSection = false;
 if (isset($_SESSION['isloggedin'])) {
     if ($_SESSION['Verified']) {
         $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
@@ -19,6 +20,119 @@ if (isset($_SESSION['isloggedin'])) {
                         header('location: '.$config['URL'].'/user/login');
                         exit();
                     }
+                }
+            }
+            if (isset($_POST['update']) && isset($_POST['password'])){
+                $passwordSection = false;
+                $id = $_SESSION['user-id'];
+                $password   = $_POST['password'];
+                if (strlen($password) >= 8) {
+                    $password   = htmlentities($_POST['password']);
+                    $encrypt     = sha1($password);
+                    $query = "SELECT * FROM users WHERE user_id = $id AND `password` = '$encrypt'";
+                    echo $query;
+                    $result = mysqli_query($connection,$query);
+                    $total  = mysqli_num_rows($result);
+                    if ($total == 1){
+                        $query = "UPDATE `users` SET
+                        `fname` = '".
+                        (($_SESSION['user-fname'] != $_POST['fname']) ? $_POST['fname'] : $_SESSION['user-fname'])
+                        ."', `lname` = '".
+                        (($_SESSION['user-lname'] != $_POST['lname']) ? $_POST['lname'] : $_SESSION['user-lname'])
+                        ."', `contact` = '".
+                        (($_SESSION['user-contact'] != $_POST['contact']) ? $_POST['contact'] : $_SESSION['user-contact'])
+                        ."', `address` = '".
+                        (($_SESSION['user-address'] != $_POST['address']) ? $_POST['address'] : $_SESSION['user-address'])
+                        ."', `city` = '".
+                        (($_SESSION['user-city'] != $_POST['city']) ? $_POST['city'] : $_SESSION['user-city'])
+                        ."', `state` = '".
+                        (($_SESSION['user-state'] != $_POST['state']) ? $_POST['state'] : $_SESSION['user-state'])
+                        ."', `postal` = '".
+                        (($_SESSION['user-postal'] != $_POST['postal']) ? $_POST['postal'] : $_SESSION['user-postal'])
+                        ."', `country` = '".
+                        (($_SESSION['user-country'] != $_POST['country']) ? $_POST['country'] : $_SESSION['user-country'])
+                        ."' WHERE `user_id` = $id";
+                        echo '<br>';
+                        echo $query;
+                        $result = mysqli_query($connection,$query);
+                        if ($result) {
+                            $_SESSION['user-fname'] = ($_SESSION['user-fname'] != $_POST['fname']) ? $_POST['fname'] : $_SESSION['user-fname'];
+                            $_SESSION['user-lname'] = ($_SESSION['user-lname'] != $_POST['lname']) ? $_POST['lname'] : $_SESSION['user-lname'];
+                            $_SESSION['user-contact'] = ($_SESSION['user-contact'] != $_POST['contact']) ? $_POST['contact'] : $_SESSION['user-contact'];
+                            $_SESSION['user-address'] = ($_SESSION['user-address'] != $_POST['address']) ? $_POST['address'] : $_SESSION['user-address'];
+                            $_SESSION['user-city'] = ($_SESSION['user-city'] != $_POST['city']) ? $_POST['city'] : $_SESSION['user-city'];
+                            $_SESSION['user-state'] = ($_SESSION['user-state'] != $_POST['state']) ? $_POST['state'] : $_SESSION['user-state'];
+                            $_SESSION['user-postal'] = ($_SESSION['user-postal'] != $_POST['postal']) ? $_POST['postal'] : $_SESSION['user-postal'];
+                            $_SESSION['user-country'] = ($_SESSION['user-country'] != $_POST['country']) ? $_POST['country'] : $_SESSION['user-country'];
+                            header('location: '.$config['URL'].'/user/settings');
+                            exit();
+                        } 
+                    }
+                } else {
+                    $alert = '<div class="container mt-5">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                Password must be 8 characters long
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>';
+                }
+            }
+            if (isset($_POST['submit2']) && isset($_POST['password3'])){
+                $passwordSection = true;
+                $id = $_SESSION['user-id'];
+                $password3  = $_POST['password3'];
+                if (strlen($password3) >= 8) {
+                    $password3   = htmlentities($_POST['password3']);
+                    $encrypt3     = sha1($password3);
+                    $query = "SELECT * FROM `users` WHERE `user_id`= $id AND `password` = '$encrypt3'";
+                    $result = mysqli_query($connection,$query);
+                    $total  = mysqli_num_rows($result);
+                    if ($total == 1) {
+                        $password   = $_POST['password'];
+                        if (strlen($password) >= 8) {
+                            $password2   = $_POST['password2'];
+                            if ($password == $password2) {
+                                $password   = htmlentities($_POST['password']);
+                                $encrypt     = sha1($password);
+                                $query = "UPDATE `users` SET `password`='$encrypt' WHERE `user_id` = $id";
+                                $result = mysqli_query($connection,$query);
+                                if ($result) {
+                                    session_unset();
+                                    session_destroy();
+                                    header('location: '.$config['URL'].'/user/login');
+                                    exit();
+                                }
+                            } else {
+                                $alert = '<div class="container mt-5">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        New password not matched 
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>';
+                            }
+                        } else {
+                            $alert = '<div class="container mt-5">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    New password must be 8 characters long
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            </div>';
+                        }
+                    } else {
+                        $alert = '<div class="container mt-5">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                Incorrect Password
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>';
+                    }
+                } else {
+                    $alert = '<div class="container mt-5">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                Password must be 8 characters long
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>';
                 }
             }
         }
@@ -97,24 +211,56 @@ if (isset($_SESSION['isloggedin'])) {
         <div class="row">
             <div class="col-md-3">
                 <div class="list-group">
-                    <a href="#account-details" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
-                        <i class="fas fa-user me-2"></i> Account Details
-                    </a>
-                    <a href="#change-password" class="list-group-item list-group-item-action" data-bs-toggle="tab">
-                        <i class="fas fa-lock me-2"></i> Change Password
-                    </a>
-                    <a href="#delete-account" class="list-group-item list-group-item-action" data-bs-toggle="tab">
-                        <i class="fas fa-trash me-2"></i> Delete Account
-                    </a>
-                    <a href="#logout" class="list-group-item list-group-item-action" data-bs-toggle="tab">
-                        <i class="fas fa-sign-out-alt me-2"></i> Logout
-                    </a>
+                    <?php
+                        if (!$passwordSection) {
+                    ?>
+                        <a href="#account-details" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+                            <i class="fas fa-user me-2"></i> Account Details
+                        </a>
+                        <a href="#change-password" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-lock me-2"></i> Change Password
+                        </a>
+                        <a href="#delete-account" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-trash me-2"></i> Delete Account
+                        </a>
+                        <a href="#logout" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    <?php
+                        } else {
+                    ?>
+                        <a href="#account-details" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-user me-2"></i> Account Details
+                        </a>
+                        <a href="#change-password" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+                            <i class="fas fa-lock me-2"></i> Change Password
+                        </a>
+                        <a href="#delete-account" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-trash me-2"></i> Delete Account
+                        </a>
+                        <a href="#logout" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    <?php
+                        }
+                    ?>
+                    
                 </div>
 
             </div>
             <div class="col-md-9">
                 <div class="tab-content">
+                    <?php
+                        if (!$passwordSection) {
+                    ?>
                     <div id="account-details" class="tab-pane fade show active">
+                    <?php
+                        } else {
+                    ?>
+                    <div id="account-details" class="tab-pane fade">
+                    <?php
+                        }
+                    ?>
                         <h4>Account Details</h4>
                         <form method="post">
                             <div class="row row-cols-md-2 d-none d-sm-none d-md-flex d-lg-flex d-xl-flex d-xxl-flex">
@@ -727,9 +873,49 @@ if (isset($_SESSION['isloggedin'])) {
                         </form>
                         <br>
                     </div>
+                    <?php
+                        if (!$passwordSection) {
+                    ?>
                     <div id="change-password" class="tab-pane fade">
+                    <?php
+                        } else {
+                    ?>
+                    <div id="change-password" class="tab-pane fade show active">
+                    <?php
+                        }
+                    ?>
                         <h4>Change Password</h4>
                         <form method="post">
+                            <div class="container">
+                                <div class="row row-cols-1 row-cols-md-1 m-4">
+                                    <div class="col">
+                                        <div class="card-body">
+                                            <?php
+                                                echo $alert;
+                                            ?>
+                                            <div class="row row-cols-1 row-cols-md-1 m-4">
+                                                <div class="col">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="password" class="form-control" required name="password3" id="floatingInput" placeholder="name@example.com">
+                                                        <label for="floatingInput">Enter Current Password</label>
+                                                    </div>
+                                                    <div class="form-floating mb-3">
+                                                        <input type="password" class="form-control" required name="password" id="floatingInput" placeholder="name@example.com">
+                                                        <label for="floatingInput">Enter New Password</label>
+                                                    </div>
+                                                    <div class="form-floating mb-3">
+                                                        <input type="password" class="form-control" required name="password2" id="floatingInput" placeholder="name@example.com">
+                                                        <label for="floatingInput">Re-Enter New Password</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid gap-2 col-6 mx-auto">
+                                                <input type="submit" value="Update" class="btn btn-primary mt-3" name="submit2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div id="delete-account" class="tab-pane fade">
