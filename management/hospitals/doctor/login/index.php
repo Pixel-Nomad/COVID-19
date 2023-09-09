@@ -18,47 +18,53 @@ if (!isset($_SESSION['isloggedin'])) {
             }
         }
         if (isset($_POST['login'])) {
-            $email      = htmlentities($_POST['email']);
-            $password   = $_POST['password'];
-            if (strlen($password) >= 8) {
-                $password   = htmlentities($_POST['password']);
-                $encrypt     = sha1($password);
-                $sql = "SELECT * FROM `users` WHERE `email`= '$email' AND `password`='$encrypt'";
-                $result = mysqli_query($connection, $sql);
-
-                $total  = mysqli_num_rows($result);
-                if ($total >= 1) {
-                    session_start();
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        $_SESSION['user-id'] = $row['user_id'];
-                        $_SESSION['user-fname'] = $row['fname'];
-                        $_SESSION['user-lname'] = $row['lname'];
-                        $_SESSION['user-email'] = $row['email'];
-                        $_SESSION['user-contact'] = $row['contact'];
-                        $_SESSION['user-role'] = $row['role'];
-                        $_SESSION['user-address'] = $row['address'];
-                        $_SESSION['user-city'] = $row['city'];
-                        $_SESSION['user-state'] = $row['state'];
-                        $_SESSION['user-postal'] = $row['postal'];
-                        $_SESSION['user-country'] = $row['country'];
-                        if ($row['verified'] == 'true') {
-                            $_SESSION['Verified'] = true;
+            if (isset($_POST['hospital'])) {
+                if ($_POST['hospital'] != '') {
+                    $hospitalid = $_POST['hospital'];
+                    $email      = htmlentities($_POST['email']);
+                    $password   = $_POST['password'];
+                    if (strlen($password) >= 8) {
+                        $password   = htmlentities($_POST['password']);
+                        $encrypt     = sha1($password);
+                        $sql = "SELECT * FROM `hospital_users` WHERE `email`= '$email' AND `password`='$encrypt' AND `hospital_id` = $hospitalid AND `approved` = 'true'";
+                        $result = mysqli_query($connection, $sql);
+                        $total  = mysqli_num_rows($result);
+                        if ($total >= 1) {
+                            session_start();
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $_SESSION['hospital-user-id'] = $row['user_id'];
+                                $_SESSION['hospital-hospital-id'] = $row['hospital_id'];
+                                $_SESSION['hospital-name'] = $row['name'];
+                                $_SESSION['hospital-email'] = $row['email'];
+                                if ($row['approved'] == 'true') {
+                                    $_SESSION['hospital-approved'] = true;
+                                } else {
+                                    $_SESSION['hospital-approved'] = false;
+                                }
+                                $_SESSION['hospital-isloggedin'] = true;
+                                header('location: ' . $config['URL'].'/management/hospitals/doctor');
+                                exit();
+                            }
                         } else {
-                            $_SESSION['Verified'] = false;
+                            $alert = '<div class="container mt-5">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        Email or Password is incorrect or you are not approved
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>';
                         }
-                    }
-                    $_SESSION['user-email'] = $email;
-                    $_SESSION['isloggedin'] = true;
-                    if ($_SESSION['Verified']) {
-                        header('location: ' . $config['URL']);
                     } else {
-                        header('location: ' . $config['URL'] . '/user/verify');
+                        $alert = '<div class="container mt-5">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        Password must be 8 characters long
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>';
                     }
-                    exit();
                 } else {
                     $alert = '<div class="container mt-5">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Email or Password is incorrect
+                                Please Select Hospital
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
@@ -66,7 +72,7 @@ if (!isset($_SESSION['isloggedin'])) {
             } else {
                 $alert = '<div class="container mt-5">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Password must be 8 characters long
+                                Please Select Hospital
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </div>';
@@ -150,9 +156,6 @@ if ($config['STATIC_BACKGROUND']) {
                                     <label for="floatingInput">Enter Password</label>
                                 </div>
                                 <?php echo $alert; ?>
-                                <a href='<?php echo $config['URL'] ?>/management/hospitals/doctor/forget/'>
-                                    <p>Forget Password?.</p>
-                                </a>
                                 <a href='<?php echo $config['URL'] ?>/management/hospitals/doctor/register/'>
                                     <p>Don't have an account? Get one now.</p>
                                 </a>

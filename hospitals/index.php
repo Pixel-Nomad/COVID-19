@@ -3,9 +3,48 @@ require('../config.php');
 session_start();
 $data = '';
 $alert = '';
+$test  = [];
+$vaccine = [];
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
 if ($connection) {
     $query = "SELECT * FROM hospitals";
+    $query2 = "SELECT *
+    FROM hospitals
+    LEFT OUTER JOIN available_test ON hospitals.hospital_id = available_test.hospital_id
+    LEFT OUTER JOIN available_vaccine ON hospitals.hospital_id = available_vaccine.hospital_id;";
+    $result2 = mysqli_query($connection, $query2);
+    $total2  = mysqli_num_rows($result2);
+    if ($total2 >= 1){
+        while ($row = mysqli_fetch_assoc($result2)) {
+            if (!isset($test[$row['hospital_id']])){
+                $test[$row['hospital_id']] = [];
+            }
+            if (!isset($vaccine[$row['hospital_id']])){
+                $vaccine[$row['hospital_id']] = [];
+            }
+            if ($row['test_type'] != NULL){
+                if (!isset($test[$row['hospital_id']][$row['test_type']])){
+                    $test[$row['hospital_id']][$row['test_type']] = [];
+                    $test[$row['hospital_id']][$row['test_type']] = true;
+                    if (!isset($test[$row['hospital_id']]['data'])){
+                        $test[$row['hospital_id']]['data'] = '';
+                    }
+                    $test[$row['hospital_id']]['data'] .= $row['test_type']."<br>";
+                }
+            }
+            if ($row['vaccine_type'] != NULL){
+                if (!isset($vaccine[$row['hospital_id']][$row['vaccine_type']])){
+                    $vaccine[$row['hospital_id']][$row['vaccine_type']] = [];
+                    $vaccine[$row['hospital_id']][$row['vaccine_type']] = true;
+                    if (!isset($vaccine[$row['hospital_id']]['data'])){
+                        $vaccine[$row['hospital_id']]['data'] = '';
+                    }
+                    $vaccine[$row['hospital_id']]['data'] .= $row['vaccine_type']."<br>";
+                }
+            }
+        }
+    }
+    
     $result = mysqli_query($connection, $query);
     $total  = mysqli_num_rows($result);
     if ($total >= 1) {
@@ -15,8 +54,8 @@ if ($connection) {
                 <td>' . $row['timing'] . '</td>
                 <td>' . $row['area'] . '</td>
                 <td>' . $row['city'] . '</td>
-                <td>' . $row['test'] . '</td>
-                <td>' . $row['vaccine'] . '</td>
+                <td>' . ((isset($test[$row['hospital_id']])) ? $test[$row['hospital_id']]['data'] : 'Test type not available') . '</td>
+                <td>' . ((isset($vaccine[$row['hospital_id']])) ? $vaccine[$row['hospital_id']]['data'] : 'Vaccine type not available') . '</td>
                 <td>';
             if (isset($_SESSION['isloggedin'])) {
                 if ($_SESSION['Verified']) {

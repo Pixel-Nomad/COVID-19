@@ -204,7 +204,7 @@ if ($config['STATIC_BACKGROUND']) {
         <div class="container mt-5">
             <div class="card ms-3 me-3">
                 <div class="card-header">
-                    <span><i class="bi bi-table me-2"></i></span> Covid Test Results
+                    <span><i class="bi bi-table me-2"></i></span> Vaccinations
                 </div>
                 <div class="card-body">
                     <div class="table-responsive ">
