@@ -2,9 +2,10 @@
 require('../../config.php');
 session_start();
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
+$export = false;
 if (isset($_SESSION['isloggedin'])) {
     if ($_SESSION['user-role'] != 'user') {
-        if (isset($_POST['add'])){
+        if (isset($_POST['add'])) {
             $name = $_POST['name'];
             $timing = $_POST['timing'];
             $area = $_POST['area'];
@@ -15,6 +16,80 @@ if (isset($_SESSION['isloggedin'])) {
             if ($result) {
                 header('location: ' . $config['URL'] . '/management/admin');
                 exit();
+            }
+        }
+        if (isset($_POST['Export1'])){
+            $option = $_POST['option'];
+            $currentTime = date("Y-m-d H:i:s");
+            $startDate = date("Y-m-d H:i:s", strtotime("-$option days", strtotime($currentTime)));
+            $query = "SELECT report_id,user_id,hospital_id,report_timing,test_type,test_result FROM reports WHERE report_timing >= '$startDate' AND report_timing <= '$currentTime' AND `type`='test'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $filename = "$startDate _ $currentTime.csv";
+                header("Content-Type: text/csv");
+                header("Content-Disposition: attachment; filename=$filename");
+                $output = fopen("php://output", "w");
+                fputcsv($output, array("report_id", "user_id", "hospital_id", "report_timing", "test_type", "test_result"));
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                $export = true;
+            }
+        }
+        if (isset($_POST['Export2'])){
+            $option = $_POST['option'];
+            $currentTime = date("Y-m-d H:i:s");
+            $startDate = date("Y-m-d H:i:s", strtotime("-$option days", strtotime($currentTime)));
+            $query = "SELECT report_id,user_id,hospital_id,report_timing,test_type,test_result FROM reports WHERE report_timing >= '$startDate' AND report_timing <= '$currentTime' AND `type`='vaccine'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $filename = "$startDate _ $currentTime.csv";
+                header("Content-Type: text/csv");
+                header("Content-Disposition: attachment; filename=$filename");
+                $output = fopen("php://output", "w");
+                fputcsv($output, array("report_id", "user_id", "hospital_id", "report_timing", "vaccine_type", "vaccine_status"));
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                $export = true;
+            }
+        }
+        if (isset($_POST['Export3'])){
+            $currentTime = $_POST['time_after'];
+            $currentTime = date("Y-m-d H:i:s", strtotime($currentTime));
+            $startDate = $_POST['time_before'];
+            $startDate = date("Y-m-d H:i:s", strtotime($startDate));
+            $query = "SELECT report_id,user_id,hospital_id,report_timing,test_type,test_result FROM reports WHERE report_timing >= '$startDate' AND report_timing <= '$currentTime' AND `type`='test'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $filename = "$startDate _ $currentTime.csv";
+                header("Content-Type: text/csv");
+                header("Content-Disposition: attachment; filename=$filename");
+                $output = fopen("php://output", "w");
+                fputcsv($output, array("report_id", "user_id", "hospital_id", "report_timing", "test_type", "test_result"));
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                $export = true;
+            }
+        }
+        if (isset($_POST['Export4'])){
+            $currentTime = $_POST['time_after'];
+            $currentTime = date("Y-m-d H:i:s", strtotime($currentTime));
+            $startDate = $_POST['time_before'];
+            $startDate = date("Y-m-d H:i:s", strtotime($startDate));
+            $query = "SELECT report_id,user_id,hospital_id,report_timing,vaccine_type,vaccine_status FROM reports WHERE report_timing >= '$startDate' AND report_timing <= '$currentTime' AND `type`='vaccine'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $filename = "$startDate _ $currentTime.csv";
+                header("Content-Type: text/csv");
+                header("Content-Disposition: attachment; filename=$filename");
+                $output = fopen("php://output", "w");
+                fputcsv($output, array("report_id", "user_id", "hospital_id", "report_timing", "vaccine_type", "vaccine_status"));
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                $export = true;
             }
         }
     } else {
@@ -35,6 +110,10 @@ if (isset($_SESSION['isloggedin'])) {
         exit();
     }
 }
+?>
+
+<?php
+    if (!$export){
 ?>
 
 <!DOCTYPE html>
@@ -144,6 +223,8 @@ if (isset($_SESSION['isloggedin'])) {
                     <h4>Admin Dashboard</h4>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-primary open-review-form2" type="button">Export Covid Tests</button>
+                    <button class="btn btn-primary open-review-form3" type="button">Export Vaccinations Results</button>
                     <button class="btn btn-primary open-review-form" type="button">Add New Hospital</button>
                 </div>
             </div>
@@ -223,8 +304,86 @@ if (isset($_SESSION['isloggedin'])) {
                         <input type="text" class="form-control" required name="city" id="floatingInput" placeholder="name@example.com">
                         <label for="floatingInput">Hospital City</label>
                     </div>
-                        <input type="submit" class="btn btn-primary" value="Add" name="add"></input>
+                    <input type="submit" class="btn btn-primary" value="Add" name="add"></input>
                 </form>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay2">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm2"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Export Covid Tests</h2>
+                <form method="post">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="option" required id="floatingCountry">
+                            <option value="" disabled selected>Select Duration</option>
+                            <option value="1">1 Day</option>
+                            <option value="7">7 Day</option>
+                            <option value="30">30 Day</option>
+                        </select>
+                        <label for="floatingCountry">Duration</label>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Export" name="Export1"></input>
+                </form>
+                <br>
+                <button class="btn btn-primary open-review-form4">Export By Dates</button>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay3">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm3"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Export Vaccination Results</h2>
+                <form method="post">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="option" required id="floatingCountry">
+                            <option value="" disabled selected>Select Duration</option>
+                            <option value="1">1 Day</option>
+                            <option value="7">7 Day</option>
+                            <option value="30">30 Day</option>
+                        </select>
+                        <label for="floatingCountry">Duration</label>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Export" name="Export2"></input>
+                </form>
+                <br>
+                <button class="btn btn-primary open-review-form5">Export By Dates</button>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay4">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm4"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Export Covid Tests</h2>
+                <form method="post">
+                    <label>From</label>
+                    <input type="datetime-local" name="time_before" required>
+                    <br>
+                    <br>
+                    <label>To</label>
+                    <input type="datetime-local" name="time_after" required>
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" value="Export" name="Export3"></input>
+                </form>
+                <br>
+                <button class="btn btn-primary open-review-form2">Export By Option</button>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay5">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm5"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Export Vaccination Results</h2>
+                <form method="post">
+                    <label>From</label>
+                    <input type="datetime-local" name="time_before" required>
+                    <br>
+                    <br>
+                    <label>To</label>
+                    <input type="datetime-local" name="time_after" required>
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" value="Export" name="Export4"></input>
+                </form>
+                <br>
+                <button class="btn btn-primary open-review-form3">Export By Option</button>
             </div>
         </div>
     </main>
@@ -248,6 +407,65 @@ if (isset($_SESSION['isloggedin'])) {
             document.getElementById("reviewFormOverlay").style.display = "none";
         });
     </script>
+    <script>
+        const openReviewFormButtons2 = document.querySelectorAll(".open-review-form2");
+
+        // Add a click event listener to each button
+        openReviewFormButtons2.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay4").style.display = "none";
+                document.getElementById("reviewFormOverlay2").style.display = "flex";
+            });
+        });
+        document.getElementById("closeReviewForm2").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay2").style.display = "none";
+        });
+    </script>
+    <script>
+        const openReviewFormButtons3 = document.querySelectorAll(".open-review-form3");
+
+        // Add a click event listener to each button
+        openReviewFormButtons3.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay5").style.display = "none";
+                document.getElementById("reviewFormOverlay3").style.display = "flex";
+            });
+        });
+        document.getElementById("closeReviewForm3").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay3").style.display = "none";
+        });
+    </script>
+    <script>
+        const openReviewFormButtons4 = document.querySelectorAll(".open-review-form4");
+
+        // Add a click event listener to each button
+        openReviewFormButtons4.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay2").style.display = "none";
+                document.getElementById("reviewFormOverlay4").style.display = "flex";
+            });
+        });
+        document.getElementById("closeReviewForm4").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay4").style.display = "none";
+        });
+    </script>
+    <script>
+        const openReviewFormButtons5 = document.querySelectorAll(".open-review-form5");
+
+        // Add a click event listener to each button
+        openReviewFormButtons5.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay3").style.display = "none";
+                document.getElementById("reviewFormOverlay5").style.display = "flex";
+            });
+        });
+        document.getElementById("closeReviewForm5").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay5").style.display = "none";
+        });
+    </script>
 </body>
 
 </html>
+<?php
+    }
+?>

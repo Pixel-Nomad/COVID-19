@@ -1,63 +1,47 @@
 <?php
-// Include the PhpSpreadsheet classes
-require '../vendor/autoload.php';
-
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
 // Database configuration
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = '_covid19';
+$host = "localhost";
+$username = "root";
+$password = "";
+$database = "_covid19";
 
-// Connect to the database
-$mysqli = new mysqli($host, $username, $password, $database);
+// Establish a database connection
+$connection = mysqli_connect($host, $username, $password, $database);
 
-// Check for connection errors
-if ($mysqli->connect_error) {
-    die('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
+if (!$connection) {
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
-// SQL query to fetch data from the database (modify this query as per your needs)
-$sql = "SELECT * FROM reports";
-$result = $mysqli->query($sql);
+// Get the selected option (1, 2, or 3 days)
+$option = isset($_GET['option']) ? $_GET['option'] : 1; // Default to 1 day
 
-// Create a new PhpSpreadsheet instance
-$spreadsheet = new Spreadsheet();
-$sheet = $spreadsheet->getActiveSheet();
+// Calculate the start date based on the selected option
+$currentTime = date("Y-m-d H:i:s");
+$startDate = date("Y-m-d H:i:s", strtotime("-$option days", strtotime($currentTime)));
 
-// Add headers to the Excel file
-$columnIndex = 'A';
-$headers = ['report_id', 'report_timing', 'type']; // Replace with your column names
-foreach ($headers as $header) {
-    $sheet->setCellValue($columnIndex . '1', $header);
-    $columnIndex++;
+// Query to fetch data within the selected date range
+$query = "SELECT * FROM reports WHERE report_timing >= '$startDate' AND report_timing <= '$currentTime'";
+$result = mysqli_query($connection, $query);
+
+if (!$result) {
+    die("Query failed: " . mysqli_error($connection));
 }
 
-// Fetch data from the database and add it to the Excel file
-$rowIndex = 2; // Start from row 2 after headers
-while ($row = $result->fetch_assoc()) {
-    $columnIndex = 'A';
-    foreach ($row as $column) {
-        $sheet->setCellValue($columnIndex . $rowIndex, $column);
-        $columnIndex++;
-    }
-    $rowIndex++;
+// Generate a CSV file for exporting the data
+$filename = "$startDate _ $currentTime.csv";
+header("Content-Type: text/csv");
+header("Content-Disposition: attachment; filename=$filename");
+
+$output = fopen("php://output", "w");
+
+// Add headers to the CSV file (modify as per your data structure)
+fputcsv($output, array("Column1", "Column2", "Column3"));
+
+// Fetch and write data to the CSV file
+while ($row = mysqli_fetch_assoc($result)) {
+    fputcsv($output, $row);
 }
-
-// Create a writer for Excel (XLSX)
-$writer = new Xlsx($spreadsheet);
-$filename = 'exported_data.xlsx'; // Specify the desired filename
-
-// Set the appropriate headers for file download
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="' . $filename . '"');
-header('Cache-Control: max-age=0');
-
-// Output the file to the browser
-$writer->save('php://output');
 
 // Close the database connection
-$mysqli->close();
+mysqli_close($connection);
 ?>
