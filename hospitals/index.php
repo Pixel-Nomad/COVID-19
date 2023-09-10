@@ -108,7 +108,7 @@ if ($connection) {
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your normal appointment now you will receive an email when we confirm your appointment</p>
+                    <p>Successfully Booked your normal appointment</p>
                     <hr>
                     <p class="mb-0">Stay home stay safe</p>
                 </div>';
@@ -136,7 +136,7 @@ if ($connection) {
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your Covid test appointment now you will receive an email when we confirm your appointment</p>
+                    <p>Successfully Booked your Covid test appointment</p>
                     <hr>
                     <p class="mb-0">Stay home stay safe</p>
                 </div>';
@@ -164,7 +164,7 @@ if ($connection) {
             if ($result) {
                 $alert = '<div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Success!</h4>
-                    <p>Successfully Booked your Vaccination appointment now you will receive an email when we confirm your appointment</p>
+                    <p>Successfully Booked your Vaccination appointment</p>
                     <hr>
                     <p class="mb-0">Stay home stay safe</p>
                 </div>';

@@ -5,13 +5,66 @@ session_start();
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
 if (isset($_SESSION['hospital-isloggedin'])) {
     if ($connection) {
-        if (isset($_POST['update'])) {
+        if (isset($_POST['taken'])) {
+            $user_id = $_GET['id'];
             $id = $_POST['id'];
-            $quantity = $_POST['quantity'];
-            $query = "UPDATE available_vaccine SET vaccine_quantity = $quantity WHERE id = $id";
+            $time = $_POST['time'];
+            $time = date("Y-m-d H:i:s", strtotime($time));
+            $query = "UPDATE reports SET `vaccine_status` = 'Taken', report_timing = '$time' WHERE report_id = $id";
             $result = mysqli_query($connection, $query);
             if ($result) {
-                header('location: ' . $config['URL'] . '/management/hospitals/doctor/');
+                header('location: ' . $config['URL'] . '/management/hospitals/patient/?id=' . $user_id);
+                exit();
+            }
+        }
+        if (isset($_POST['deletevaccine'])) {
+            $id = $_POST['id'];
+            $query = "DELETE FROM `reports` WHERE `report_id` = $id AND `type` = 'vaccine'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $user_id = $_GET['id'];
+                header('location: ' . $config['URL'] . '/management/hospitals/patient/?id=' . $user_id);
+                exit();
+            }
+        }
+        if (isset($_POST['deletetest'])) {
+            $id = $_POST['id'];
+            $query = "DELETE FROM `reports` WHERE `report_id` = $id AND `type` = 'test'";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $user_id = $_GET['id'];
+                header('location: ' . $config['URL'] . '/management/hospitals/patient/?id=' . $user_id);
+                exit();
+            }
+        }
+        if (isset($_POST['newTest'])){
+            $user_id = $_POST['user_id'];
+            $hospital_id = $_SESSION['hospital-hospital-id'];
+            $testtype    = $_POST['type'];
+            $result  = $_POST['result'];
+            $time = $_POST['time'];
+            $time = date("Y-m-d H:i:s", strtotime($time));
+            $type = 'test';
+            $query = "INSERT INTO reports (user_id,hospital_id,report_timing,`type`,test_type,test_result) 
+            VALUES ($user_id,$hospital_id,'$time','$type','$testtype','$result')";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $user_id = $_GET['id'];
+                header('location: ' . $config['URL'] . '/management/hospitals/patient/?id=' . $user_id);
+                exit();
+            }
+        }
+        if (isset($_POST['newVaccine'])){
+            $user_id = $_POST['user_id'];
+            $hospital_id = $_SESSION['hospital-hospital-id'];
+            $vaccinetype    = $_POST['type'];
+            $type = 'vaccine';
+            $query = "INSERT INTO reports (user_id,hospital_id,`type`,vaccine_type) 
+            VALUES ($user_id,$hospital_id,'$type','$vaccinetype')";
+            $result = mysqli_query($connection, $query);
+            if ($result) {
+                $user_id = $_GET['id'];
+                header('location: ' . $config['URL'] . '/management/hospitals/patient/?id=' . $user_id);
                 exit();
             }
         }
@@ -182,6 +235,10 @@ if (isset($_GET['id'])) {
                         }
                     }
                     ?>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn btn-primary open-review-form2" type="button">Add New Test</button>
+                        <button class="btn btn-primary open-review-form3" type="button">Add New Vaccine</button>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -204,26 +261,26 @@ if (isset($_GET['id'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                            $query = "SELECT * FROM appointments INNER JOIN hospitals ON appointments.hospital_id = hospitals.hospital_id WHERE appointments.user_id = $user_id";
-                                            $result = mysqli_query($connection, $query);
-                                            $total  = mysqli_num_rows($result);
-                                            if ($total >= 1) {
-                                                while ($row = mysqli_fetch_assoc($result)) {
-                                                    if ($row['status'] == 'approved' || $row['status'] == 'visited' || $row['status'] == 'not visited') {
-                                                        echo '
+                                        $query = "SELECT * FROM appointments INNER JOIN hospitals ON appointments.hospital_id = hospitals.hospital_id WHERE appointments.user_id = $user_id";
+                                        $result = mysqli_query($connection, $query);
+                                        $total  = mysqli_num_rows($result);
+                                        if ($total >= 1) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                if ($row['status'] == 'approved' || $row['status'] == 'visited' || $row['status'] == 'not visited') {
+                                                    echo '
                                                         <tr>
-                                                            <td>'.$row['appointment_id'].'</td>
-                                                            <td>'.$row['hospital_name'].'</td>
-                                                            <td>'.$row['appointment_time'].'</td>
-                                                            <td>'.$row['type'].'</td>
-                                                            <td>'.$row['status'].'</td>
+                                                            <td>' . $row['appointment_id'] . '</td>
+                                                            <td>' . $row['hospital_name'] . '</td>
+                                                            <td>' . $row['appointment_time'] . '</td>
+                                                            <td>' . $row['type'] . '</td>
+                                                            <td>' . $row['status'] . '</td>
                                                         </tr>
                                                         ';
-                                                    }
                                                 }
                                             }
+                                        }
                                         ?>
-                                        
+
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -260,19 +317,19 @@ if (isset($_GET['id'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                            $query = "SELECT * FROM reports INNER JOIN hospitals ON reports.hospital_id = hospitals.hospital_id WHERE reports.user_id = $user_id";
-                                            $result = mysqli_query($connection, $query);
-                                            $total  = mysqli_num_rows($result);
-                                            if ($total >= 1) {
-                                                while ($row = mysqli_fetch_assoc($result)) {
-                                                    if ($row['type'] == 'test') {
-                                                        if ($row['hospital_id'] == $_SESSION['hospital-hospital-id']){
-                                                            echo '
+                                        $query = "SELECT * FROM reports INNER JOIN hospitals ON reports.hospital_id = hospitals.hospital_id WHERE reports.user_id = $user_id";
+                                        $result = mysqli_query($connection, $query);
+                                        $total  = mysqli_num_rows($result);
+                                        if ($total >= 1) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                if ($row['type'] == 'test') {
+                                                    if ($row['hospital_id'] == $_SESSION['hospital-hospital-id']) {
+                                                        echo '
                                                             <tr>
-                                                                <td>'.$row['hospital_name'].'</td>
-                                                                <td>'.$row['report_timing'].'</td>
-                                                                <td>'.$row['test_type'].'</td>
-                                                                <td>'.$row['test_result'].'</td>
+                                                                <td>' . $row['hospital_name'] . '</td>
+                                                                <td>' . $row['report_timing'] . '</td>
+                                                                <td>' . $row['test_type'] . '</td>
+                                                                <td>' . $row['test_result'] . '</td>
                                                                 <td>
                                                                     
                                                                     <form method="post">
@@ -284,22 +341,22 @@ if (isset($_GET['id'])) {
                                                                 </td>
                                                             </tr>
                                                             ';
-                                                        } else {
-                                                            echo '
+                                                    } else {
+                                                        echo '
                                                             <tr>
-                                                                <td>'.$row['hospital_name'].'</td>
-                                                                <td>'.$row['report_timing'].'</td>
-                                                                <td>'.$row['test_type'].'</td>
-                                                                <td>'.$row['test_result'].'</td>
+                                                                <td>' . $row['hospital_name'] . '</td>
+                                                                <td>' . $row['report_timing'] . '</td>
+                                                                <td>' . $row['test_type'] . '</td>
+                                                                <td>' . $row['test_result'] . '</td>
                                                                 <td>Access Forbidden</td>
                                                             </tr>
                                                             ';
-                                                        }
                                                     }
                                                 }
                                             }
+                                        }
                                         ?>
-                                        
+
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -336,46 +393,51 @@ if (isset($_GET['id'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                            $query = "SELECT * FROM reports INNER JOIN hospitals ON reports.hospital_id = hospitals.hospital_id WHERE reports.user_id = $user_id";
-                                            $result = mysqli_query($connection, $query);
-                                            $total  = mysqli_num_rows($result);
-                                            if ($total >= 1) {
-                                                while ($row = mysqli_fetch_assoc($result)) {
-                                                    if ($row['type'] == 'vaccine') {
-                                                        if ($row['hospital_id'] == $_SESSION['hospital-hospital-id']){
-                                                            echo '
+                                        $query = "SELECT * FROM reports INNER JOIN hospitals ON reports.hospital_id = hospitals.hospital_id WHERE reports.user_id = $user_id";
+                                        $result = mysqli_query($connection, $query);
+                                        $total  = mysqli_num_rows($result);
+                                        if ($total >= 1) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                if ($row['type'] == 'vaccine') {
+                                                    if ($row['hospital_id'] == $_SESSION['hospital-hospital-id']) {
+                                                        echo '
                                                             <tr>
-                                                                <td>'.$row['hospital_name'].'</td>
-                                                                <td>'.(($row['report_timing']!=NULL) ? $row['report_timing'] : 'Not Taken').'</td>
-                                                                <td>'.$row['vaccine_type'].'</td>
-                                                                <td>'.$row['vaccine_status'].'</td>
-                                                                <td>
-                                                                    
-                                                                    <form method="post">
+                                                                <td>' . $row['hospital_name'] . '</td>
+                                                                <td>' . (($row['report_timing'] != NULL) ? $row['report_timing'] : 'Not Taken') . '</td>
+                                                                <td>' . $row['vaccine_type'] . '</td>
+                                                                <td>' . $row['vaccine_status'] . '</td>
+                                                                <td>';
+                                                        if ($row['vaccine_status'] == 'Not Taken') {
+                                                            echo '<div class="d-grid gap-2">
+                                                                    <button class="btn btn-outline-success open-review-form" data-report-id="' . $row['report_id'] . '">Taken</button>
+                                                                </div>';
+                                                        }
+
+                                                        echo '<form method="post">
                                                                         <div class="d-grid gap-2">
                                                                             <input type="text" class="d-none" name="id" value="' . $row['report_id'] . '">
-                                                                            <input type="submit" value="Delete" class="btn btn-outline-danger" name="deletetest">
+                                                                            <input type="submit" value="Delete" class="btn btn-outline-danger" name="deletevaccine">
                                                                         </div>
                                                                     </form>
                                                                 </td>
                                                             </tr>
                                                             ';
-                                                        } else {
-                                                            echo '
+                                                    } else {
+                                                        echo '
                                                             <tr>
-                                                                <td>'.$row['hospital_name'].'</td>
-                                                                <td>'.(($row['report_timing']!=NULL) ? $row['report_timing'] : 'Not Taken').'</td>
-                                                                <td>'.$row['vaccine_type'].'</td>
-                                                                <td>'.$row['vaccine_status'].'</td>
+                                                                <td>' . $row['hospital_name'] . '</td>
+                                                                <td>' . (($row['report_timing'] != NULL) ? $row['report_timing'] : 'Not Taken') . '</td>
+                                                                <td>' . $row['vaccine_type'] . '</td>
+                                                                <td>' . $row['vaccine_status'] . '</td>
                                                                 <td>Access Forbidden</td>
                                                             </tr>
                                                             ';
-                                                        }
                                                     }
                                                 }
                                             }
+                                        }
                                         ?>
-                                        
+
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -393,6 +455,81 @@ if (isset($_GET['id'])) {
                 </div>
             </div>
         </div>
+        <div class="review-form-overlay" id="reviewFormOverlay">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Select Time</h2>
+                <form method="post">
+                    <input type="text" class="d-none" id="reportId" name="id" value="">
+                    <input type="datetime-local" name="time" required>
+                    <input type="submit" class="btn btn-primary" value="Update" name="taken"></input>
+                </form>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay2">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm2"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Add New Test</h2>
+                <form method="post">
+                    <input type="text" class="d-none" value="<?php echo $_GET['id']; ?>" name="user_id">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="type" required id="floatingHospital">
+                            <option value="" disabled selected>Select Type</option>
+                            <?php
+                                $hospital_id = $_SESSION['hospital-user-id'];
+                                $query = "SELECT * FROM available_test WHERE hospital_id = $hospital_id";
+                                $result = mysqli_query($connection, $query);
+                                $total  = mysqli_num_rows($result);
+                                if ($total >= 1) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo '<option value="'.$row['test_type'].'">'.$row['test_type'].'</option>';
+                                    }
+                                }
+                            ?>
+                        </select>
+                        <label for="floatingHospital">Test Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="result" required id="floatingHospital">
+                            <option value="" disabled selected>Select Result</option>
+                            <option value="Positive">Positive</option>
+                            <option value="Negetive">Negetive</option>
+                        </select>
+                        <label for="floatingHospital">Test Result</label>
+                    </div>
+
+                    <input type="datetime-local" name="time" required>
+                    <input type="submit" class="btn btn-primary" value="Add" name="newTest"></input>
+                </form>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay3">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm3"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Select Time</h2>
+                <form method="post">
+                    <input type="text" class="d-none" value="<?php echo $_GET['id']; ?>" name="user_id">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="type" required id="floatingHospital">
+                            <option value="" disabled selected>Select Type</option>
+                            <?php
+                                $hospital_id = $_SESSION['hospital-user-id'];
+                                $query = "SELECT * FROM available_vaccine WHERE hospital_id = $hospital_id";
+                                $result = mysqli_query($connection, $query);
+                                $total  = mysqli_num_rows($result);
+                                if ($total >= 1) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo '<option value="'.$row['vaccine_type'].'">'.$row['vaccine_type'].'</option>';
+                                    }
+                                }
+                            ?>
+                        </select>
+                        <label for="floatingHospital">Vaccine Type</label>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Add" name="newVaccine"></input>
+                </form>
+            </div>
+        </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
@@ -401,6 +538,55 @@ if (isset($_GET['id'])) {
     <script src="<?php echo $config['URL'] ?>/vendor/data_tables/dataTables.bootstrap5.min.js"></script>
     <script src="<?php echo $config['URL'] ?>/assets/js/global.js"></script>
     <script src="<?php echo $config['URL'] ?>/assets/js/dash.js"></script>
+    <script>
+        const openReviewFormButtons = document.querySelectorAll(".open-review-form");
+
+        // Add a click event listener to each button
+        openReviewFormButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                const reportId = button.getAttribute("data-report-id");
+                openReviewForm(reportId);
+            });
+        });
+
+        // Function to open the review form with a predefined plant_id
+        function openReviewForm(reportId) {
+            document.getElementById("reportId").value = reportId;
+            document.getElementById("reviewFormOverlay").style.display = "flex";
+        }
+
+        document.getElementById("closeReviewForm").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay").style.display = "none";
+        });
+    </script>
+    <script>
+        const openReviewFormButtons2 = document.querySelectorAll(".open-review-form2");
+
+        // Add a click event listener to each button
+        openReviewFormButtons2.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay2").style.display = "flex";
+            });
+        });
+
+        document.getElementById("closeReviewForm2").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay2").style.display = "none";
+        });
+    </script>
+    <script>
+        const openReviewFormButtons3 = document.querySelectorAll(".open-review-form3");
+
+        // Add a click event listener to each button
+        openReviewFormButtons3.forEach(button => {
+            button.addEventListener("click", function() {
+                document.getElementById("reviewFormOverlay3").style.display = "flex";
+            });
+        });
+
+        document.getElementById("closeReviewForm3").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay3").style.display = "none";
+        });
+    </script>
 </body>
 
 </html>

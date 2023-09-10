@@ -45,7 +45,7 @@ if (!isset($_SESSION['isloggedin'])) {
                             if ($query) {
                                 $alert = '<div class="container mt-5">
                                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        Request Successfully send to admin you will receive an email when admin confirms
+                                        Request Successfully send to admin
                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>
                                 </div>';
