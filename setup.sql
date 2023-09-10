@@ -33,14 +33,15 @@ CREATE TABLE IF NOT EXISTS `appointments` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `hospital_id` FOREIGN KEY (`hospital_id`) REFERENCES `hospitals` (`hospital_id`),
   CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table _covid19.appointments: ~3 rows (approximately)
 DELETE FROM `appointments`;
 INSERT INTO `appointments` (`appointment_id`, `hospital_id`, `user_id`, `type`, `status`, `booking_time`, `appointment_time`) VALUES
 	(17, 6, 6, 'normal', 'visited', '2023-09-10 09:58:26', '2023-09-12 15:00:00'),
 	(18, 5, 6, 'normal', 'rejected', '2023-09-10 10:05:20', '2023-09-20 13:05:00'),
-	(19, 8, 6, 'normal', 'visited', '2023-09-10 19:54:00', '2023-09-13 22:54:00');
+	(19, 8, 6, 'normal', 'visited', '2023-09-10 19:54:00', '2023-09-13 22:54:00'),
+	(20, 9, 7, 'normal', 'visited', '2023-09-10 22:13:41', '2023-09-11 01:14:00');
 
 -- Dumping structure for table _covid19.available_test
 CREATE TABLE IF NOT EXISTS `available_test` (
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `available_test` (
   CONSTRAINT `hospital_id_available_test` FOREIGN KEY (`hospital_id`) REFERENCES `hospitals` (`hospital_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table _covid19.available_test: ~11 rows (approximately)
+-- Dumping data for table _covid19.available_test: ~13 rows (approximately)
 DELETE FROM `available_test`;
 INSERT INTO `available_test` (`id`, `hospital_id`, `test_type`) VALUES
 	(8, 6, 'PCR (Polymerase Chain Reaction)'),
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `available_vaccine` (
   CONSTRAINT `hospital_id_available_vaccine` FOREIGN KEY (`hospital_id`) REFERENCES `hospitals` (`hospital_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table _covid19.available_vaccine: ~9 rows (approximately)
+-- Dumping data for table _covid19.available_vaccine: ~11 rows (approximately)
 DELETE FROM `available_vaccine`;
 INSERT INTO `available_vaccine` (`id`, `hospital_id`, `vaccine_type`, `vaccine_quantity`, `vaccine_color`) VALUES
 	(8, 6, 'Pfizer-BioNTech', 49, 'primary'),
@@ -118,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `hospitals` (
   PRIMARY KEY (`hospital_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table _covid19.hospitals: ~4 rows (approximately)
+-- Dumping data for table _covid19.hospitals: ~5 rows (approximately)
 DELETE FROM `hospitals`;
 INSERT INTO `hospitals` (`hospital_id`, `hospital_name`, `timing`, `area`, `city`) VALUES
 	(5, 'Ziauddin Hospital', '09:00 - 02:00', 'Clifton', 'Karachi'),
@@ -165,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `reports` (
   KEY `hospital_id_report` (`hospital_id`),
   CONSTRAINT `hospital_id_report` FOREIGN KEY (`hospital_id`) REFERENCES `hospitals` (`hospital_id`),
   CONSTRAINT `user_id_report` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table _covid19.reports: ~5 rows (approximately)
 DELETE FROM `reports`;
@@ -174,7 +175,8 @@ INSERT INTO `reports` (`report_id`, `user_id`, `hospital_id`, `report_timing`, `
 	(14, 6, 6, '2023-09-10 16:24:39', 'test', 'PCR (Polymerase Chain Reaction)', NULL, 'Positive', 'Not Taken'),
 	(15, 6, 6, '2023-09-10 16:24:39', 'vaccine', NULL, 'Pfizer-BioNTech', NULL, 'Taken'),
 	(16, 6, 6, NULL, 'vaccine', NULL, 'Sinopharm', NULL, 'Not Taken'),
-	(17, 6, 8, '2023-09-10 22:54:00', 'test', 'Saliva Test', NULL, 'Negetive', 'Not Taken');
+	(17, 6, 8, '2023-09-10 22:54:00', 'test', 'Saliva Test', NULL, 'Negetive', 'Not Taken'),
+	(18, 7, 9, '2023-09-11 01:18:00', 'test', 'Saliva', NULL, 'Negetive', 'Not Taken');
 
 -- Dumping structure for table _covid19.users
 CREATE TABLE IF NOT EXISTS `users` (
@@ -188,13 +190,13 @@ CREATE TABLE IF NOT EXISTS `users` (
   `city` varchar(50) DEFAULT NULL,
   `state` varchar(50) DEFAULT NULL,
   `postal` varchar(50) DEFAULT NULL,
-  `country` varchar(5) DEFAULT NULL,
+  `country` varchar(50) DEFAULT NULL,
   `verified` varchar(5) DEFAULT 'false',
   `role` varchar(10) DEFAULT 'user',
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table _covid19.users: ~2 rows (approximately)
+-- Dumping data for table _covid19.users: ~3 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `contact`, `password`, `address`, `city`, `state`, `postal`, `country`, `verified`, `role`) VALUES
 	(5, 'Aliza', 'Ghulam', 'aleezaghulam0077@gmail.com', '03122499117', '4d7efd8e73d3c646a7eabb84647ed205b8acfbfc', 'Zamzama Commercial Lane gizri ', 'Karachi', 'Sindh', '75600', 'Pakistan', 'true', 'user'),
