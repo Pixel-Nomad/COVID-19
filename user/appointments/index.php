@@ -15,7 +15,7 @@ if (isset($_SESSION['isloggedin'])) {
             if ($total >= 1) {
                 $query2 = "SELECT hospital_name FROM hospitals INNER JOIN";
                 while ($row = mysqli_fetch_assoc($result)) {
-                    if ($row['status'] == 'pending' || $row['status'] == 'cancelled' || $row['status'] == 'Rejected') {
+                    if ($row['status'] == 'pending' || $row['status'] == 'cancelled' || $row['status'] == 'rejected') {
                         $data .= '<tr>
                             <td>' . $row['hospital_name'] . '</td>
                             <td>' . $row['type'] . '</td>
@@ -38,8 +38,9 @@ if (isset($_SESSION['isloggedin'])) {
                         }
                         $data .= '</td>
                         </tr>';
-                    } elseif ($row['status'] == 'approved' || $row['status'] == 'visited' || $row['status'] == 'Not visited') {
+                    } elseif ($row['status'] == 'approved' || $row['status'] == 'visited' || $row['status'] == 'not visited') {
                         $data2 .= '<tr>
+                            <td>' . $row['appointment_id'] . '</td>
                             <td>' . $row['hospital_name'] . '</td>
                             <td>' . $row['appointment_time'] . '</td>
                             <td>' . $row['type'] . '</td>
@@ -207,6 +208,7 @@ if ($config['STATIC_BACKGROUND']) {
                         <table id="example" class="table  table-striped data-table2" style="width: 100%">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Hospital Name</th>
                                     <th>Timing</th>
                                     <th>Type</th>
@@ -220,6 +222,7 @@ if ($config['STATIC_BACKGROUND']) {
                             </tbody>
                             <tfoot>
                                 <tr>
+                                    <th>#</th>
                                     <th>Hospital Name</th>
                                     <th>Timing</th>
                                     <th>Type</th>

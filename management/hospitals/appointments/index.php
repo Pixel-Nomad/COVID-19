@@ -5,6 +5,53 @@ session_start();
 $connection = mysqli_connect($config['DB_URL'], $config['DB_USERNAME'], $config['DB_PASSWORD'], $config['DB_DATABASE']);
 if (isset($_SESSION['hospital-isloggedin'])) {
     if ($connection) {
+        if (isset($_POST['rejected'])){
+            $id = $_POST['id'];
+            $query = "UPDATE appointments SET `status` = 'rejected' WHERE appointment_id = $id";
+            $result = mysqli_query($connection, $query);
+            if ($result){
+                header('location: ' . $config['URL'] . '/management/hospitals/appointments');
+                exit();
+            }
+        }
+        if (isset($_POST['pending'])){
+            $id = $_POST['id'];
+            $query = "UPDATE appointments SET `status` = 'pending' WHERE appointment_id = $id";
+            $result = mysqli_query($connection, $query);
+            if ($result){
+                header('location: ' . $config['URL'] . '/management/hospitals/appointments');
+                exit();
+            }
+        }
+        if (isset($_POST['visited'])){
+            $id = $_POST['id'];
+            $query = "UPDATE appointments SET `status` = 'visited' WHERE appointment_id = $id";
+            $result = mysqli_query($connection, $query);
+            if ($result){
+                header('location: ' . $config['URL'] . '/management/hospitals/appointments');
+                exit();
+            }
+        }
+        if (isset($_POST['not_visited'])){
+            $id = $_POST['id'];
+            $query = "UPDATE appointments SET `status` = 'not visited' WHERE appointment_id = $id";
+            $result = mysqli_query($connection, $query);
+            if ($result){
+                header('location: ' . $config['URL'] . '/management/hospitals/appointments');
+                exit();
+            }
+        }
+        if (isset($_POST['approved'])){
+            $id = $_POST['id'];
+            $time = $_POST['time'];
+            $time = date("Y-m-d H:i:s", strtotime($time));
+            $query = "UPDATE appointments SET `status` = 'approved', appointment_time = '$time' WHERE appointment_id = $id";
+            $result = mysqli_query($connection, $query);
+            if ($result){
+                header('location: ' . $config['URL'] . '/management/hospitals/appointments');
+                exit();
+            }
+        }
     }
 } else {
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -150,7 +197,214 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                     <h4>Appointments</h4>
                 </div>
             </div>
-            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="bi bi-table me-2"></i></span> Data Table
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="example" class="table table-striped data-table2" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th>type</th>
+                                            <th>status</th>
+                                            <th>booking time</th>
+                                            <th>action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            $id = $_SESSION['hospital-hospital-id'];
+                                            $query = "SELECT * FROM appointments WHERE hospital_id = $id AND (`status` = 'pending' OR `status` = 'rejected')";
+                                            $result = mysqli_query($connection, $query);
+                                            $total  = mysqli_num_rows($result);
+                                            if ($total >= 1) {
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    echo '
+                                                    <tr>
+                                                        <td>' . $row['type'] . '</td>
+                                                        <td>' . $row['status'] . '</td>
+                                                        <td>' . $row['booking_time'] . '</td>';
+                                                    if ($row['status'] == 'pending'){
+                                                        echo '<td>
+                                                        <div class="d-grid gap-2">
+                                                            <button class="btn btn-outline-success open-review-form" data-appointment-id="' . $row['appointment_id'] . '">Approve</button>
+                                                        </div>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Reject" class="btn btn-outline-danger" name="rejected">
+                                                            </div>
+                                                        </form>
+                                                        </td>';
+                                                    } elseif ($row['status'] == 'rejected') {
+                                                        echo '<td>
+                                                        <div class="d-grid gap-2">
+                                                            <button class="btn btn-outline-success open-review-form" data-appointment-id="' . $row['appointment_id'] . '">Approve</button>
+                                                        </div>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Pending" class="btn btn-outline-primary" name="pending">
+                                                            </div>
+                                                        </form>
+                                                        </td>';
+                                                    }
+                                                        
+                                                    echo '</tr>
+                                                    ';
+                                                }
+                                            }
+                                        ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                        <th>type</th>
+                                            <th>status</th>
+                                            <th>booking time</th>
+                                            <th>action</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="bi bi-table me-2"></i></span> Data Table
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="example" class="table table-striped data-table2" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>user_id</th>
+                                            <th>type</th>
+                                            <th>status</th>
+                                            <th>booking time</th>
+                                            <th>apointment time</th>
+                                            <th>action</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            $id = $_SESSION['hospital-hospital-id'];
+                                            $query = "SELECT * FROM appointments WHERE hospital_id = $id AND (`status` = 'approved' OR `status` = 'visited' OR `status` = 'not visited')";
+                                            $result = mysqli_query($connection, $query);
+                                            $total  = mysqli_num_rows($result);
+                                            if ($total >= 1) {
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    echo '
+                                                    <tr>
+                                                        <td>' . $row['appointment_id'] . '</td>
+                                                        <td><a href="'.$config['URL'] .'/management/hospitals/patient/?id=' . $row['user_id'] . '">Patient Info</a></td>
+                                                        <td>' . $row['type'] . '</td>
+                                                        <td>' . $row['status'] . '</td>
+                                                        <td>' . $row['booking_time'] . '</td>
+                                                        <td>' . $row['appointment_time'] . '</td>';
+                                                    if ($row['status'] == 'approved'){
+                                                        echo '<td>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Visited" class="btn btn-outline-success" name="visited">
+                                                            </div>
+                                                        </form>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Not Visited" class="btn btn-outline-danger" name="not_visited">
+                                                            </div>
+                                                        </form>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Pending" class="btn btn-outline-primary" name="pending">
+                                                            </div>
+                                                        </form>
+                                                        </td>';
+                                                    } elseif ($row['status'] == 'visited'){
+                                                        echo '<td>
+                                                        <div class="d-grid gap-2">
+                                                            <button class="btn btn-outline-success open-review-form" data-appointment-id="' . $row['appointment_id'] . '">Approve</button>
+                                                        </div>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Not Visited" class="btn btn-outline-danger" name="not_visited">
+                                                            </div>
+                                                        </form>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Pending" class="btn btn-outline-primary" name="pending">
+                                                            </div>
+                                                        </form>
+                                                        </td>';
+                                                    } elseif ($row['status'] == 'not visited'){
+                                                        echo '<td>
+                                                        <div class="d-grid gap-2">
+                                                            <button class="btn btn-outline-danger open-review-form" data-appointment-id="' . $row['appointment_id'] . '">Approve Again</button>
+                                                        </div>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Visited" class="btn btn-outline-success" name="visited">
+                                                            </div>
+                                                        </form>
+                                                        <form method="post">
+                                                            <div class="d-grid gap-2">
+                                                                <input type="text" class="d-none" name="id" value="' . $row['appointment_id'] . '">
+                                                                <input type="submit" value="Pending" class="btn btn-outline-primary" name="pending">
+                                                            </div>
+                                                        </form>
+                                                        </td>';
+                                                    }
+                                                        
+                                                    echo '</tr>
+                                                    ';
+                                                }
+                                            }
+                                        ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>user_id</th>
+                                            <th>type</th>
+                                            <th>status</th>
+                                            <th>booking time</th>
+                                            <th>apointment time</th>
+                                            <th>action</th>
+                                            
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="review-form-overlay" id="reviewFormOverlay">
+            <div class="review-form">
+                <button class="close-review-form" id="closeReviewForm"><i class="fas fa-times"></i></button>
+                <h2 class="mb-4">Select Time</h2>
+                <form method="post">
+                    <input type="text" class="d-none" id="appointmentId" name="id" value="">
+                    <input type="datetime-local" name="time" required>
+                    <input type="submit" class="btn btn-primary" value="Approve" name="approved"></input>
+                </form>
+            </div>
         </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
@@ -160,6 +414,27 @@ if (isset($_SESSION['hospital-isloggedin'])) {
     <script src="<?php echo $config['URL'] ?>/vendor/data_tables/dataTables.bootstrap5.min.js"></script>
     <script src="<?php echo $config['URL'] ?>/assets/js/global.js"></script>
     <script src="<?php echo $config['URL'] ?>/assets/js/dash.js"></script>
+    <script>
+        const openReviewFormButtons = document.querySelectorAll(".open-review-form");
+
+        // Add a click event listener to each button
+        openReviewFormButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                const appointmentId = button.getAttribute("data-appointment-id");
+                openReviewForm(appointmentId);
+            });
+        });
+
+        // Function to open the review form with a predefined plant_id
+        function openReviewForm(appointmentId) {
+            document.getElementById("appointmentId").value = appointmentId;
+            document.getElementById("reviewFormOverlay").style.display = "flex";
+        }
+
+        document.getElementById("closeReviewForm").addEventListener("click", function() {
+            document.getElementById("reviewFormOverlay").style.display = "none";
+        });
+    </script>
 </body>
 
 </html>
