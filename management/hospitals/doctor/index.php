@@ -88,7 +88,7 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                         </div>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-3 active">
+                        <a  class="nav-link px-3 active">
                             <span class="me-2"><i class="bi bi-speedometer2"></i></span>
                             <span>Dashboard</span>
                         </a>
@@ -98,34 +98,19 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                     </li>
                     <li>
                         <div class="text-muted small fw-bold text-uppercase px-3 mb-3">
-                            Interface
+                            Doctor Work
                         </div>
                     </li>
                     <li>
-                        <a class="nav-link px-3 sidebar-link" data-bs-toggle="collapse" href="#layouts">
-                            <span class="me-2"><i class="bi bi-layout-split"></i></span>
-                            <span>Layouts</span>
-                            <span class="ms-auto">
-                                <span class="right-icon">
-                                    <i class="bi bi-chevron-down"></i>
-                                </span>
-                            </span>
-                        </a>
-                        <div class="collapse" id="layouts">
-                            <ul class="navbar-nav ps-3">
-                                <li>
-                                    <a href="#" class="nav-link px-3">
-                                        <span class="me-2"><i class="bi bi-speedometer2"></i></span>
-                                        <span>Dashboard</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-3">
+                        <a href="<?php echo $config['URL'] ?>/management/hospitals/appointments/" class="nav-link px-3">
                             <span class="me-2"><i class="bi bi-book-fill"></i></span>
-                            <span>Pages</span>
+                            <span>Appointments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo $config['URL'] ?>/management/hospitals/doctor/update" class="nav-link px-3">
+                            <span class="me-2"><i class="bi bi-book-fill"></i></span>
+                            <span>Vaccination And Covid Test</span>
                         </a>
                     </li>
                     <li class="my-4">
@@ -133,20 +118,14 @@ if (isset($_SESSION['hospital-isloggedin'])) {
                     </li>
                     <li>
                         <div class="text-muted small fw-bold text-uppercase px-3 mb-3">
-                            Addons
+                            User Work
                         </div>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-3">
-                            <span class="me-2"><i class="bi bi-graph-up"></i></span>
-                            <span>Charts</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-3">
-                            <span class="me-2"><i class="bi bi-table"></i></span>
-                            <span>Tables</span>
-                        </a>
+                        <div class="nav-link px-3">
+                            <span class="me-2"></span>
+                            <span><?php echo $_SESSION['hospital-name'];?></span>
+                        </div>
                     </li>
                 </ul>
             </nav>

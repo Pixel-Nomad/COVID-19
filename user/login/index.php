@@ -31,6 +31,7 @@ if (!isset($_SESSION['isloggedin'])) {
                         $_SESSION['user-state'] = $row['state'];
                         $_SESSION['user-postal'] = $row['postal'];
                         $_SESSION['user-country'] = $row['country'];
+                        $_SESSION['user-role'] = $row['role'];
                         if ($row['verified'] == 'true') {
                             $_SESSION['Verified'] = true;
                         } else {

@@ -138,7 +138,14 @@ if ($config['STATIC_BACKGROUND']) {
                                 <li class="nav-item">
                                     <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/user/reports">My Results/Reports</a>
                                 </li>
+                                <?php
+                                if ($_SESSION['user-role'] != 'user') {
+                                ?>
+                                    <li class="nav-item">
+                                        <a class="nav-link navbar-hover" aria-current="page" href="<?php echo $config['URL'] ?>/management/admin">Admin Panel</a>
+                                    </li>
                         <?php
+                                }
                             }
                         }
                         ?>
