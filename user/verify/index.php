@@ -27,7 +27,7 @@ if (isset($_SESSION['isloggedin'])) {
                         $mail->Host       = 'smtp.gmail.com';
                         $mail->SMTPAuth   = true;
                         $mail->Username   = 'emergency.med.svc@gmail.com';
-                        $mail->Password   = 'lqlgqkdcyxeqijif';
+                        $mail->Password   = '';
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port       = 587;
                         // Recipients
